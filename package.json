@@ -1,0 +1,41 @@
+{
+  "name": "wp-frappe-data-store",
+  "version": "0.1.0",
+  "description": "A @wordpress/data store for querying and mutating Frappe resources.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@wordpress/data": ">=10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@wordpress/data": "latest",
+    "tsup": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  },
+  "keywords": [
+    "wordpress",
+    "frappe",
+    "gutenberg",
+    "data-store"
+  ],
+  "license": "MIT"
+}
