@@ -144,3 +144,9 @@ vite.config.ts.timestamp-*
 
 # macOS
 .DS_Store
+
+# Standalone demo build
+demo-dist/
+
+# Local browser verification artifacts
+output/playwright/

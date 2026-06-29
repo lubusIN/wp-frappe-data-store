@@ -27,4 +27,32 @@ describe('default Frappe request', () => {
 			'https://wordpress.test/wp-json/my-plugin/v1/frappe/resource/Task?limit_page_length=10'
 		);
 	});
+
+	it('extracts the human-readable message from a Frappe error', async () => {
+		vi.stubGlobal('location', { origin: 'https://wordpress.test' });
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue(
+				new Response(
+					JSON.stringify({
+						exc_type: 'PermissionError',
+						_server_messages: JSON.stringify([
+							JSON.stringify({
+								message: 'Insufficient Permission for <strong>Task</strong>',
+							}),
+						]),
+					}),
+					{ status: 403, headers: { 'Content-Type': 'application/json' } }
+				)
+			)
+		);
+		const request = createFrappeRequest({});
+
+		await expect(
+			request({ method: 'GET', path: '/api/resource/Task' })
+		).rejects.toMatchObject({
+			message: 'Insufficient Permission for Task',
+			status: 403,
+		});
+	});
 });

@@ -2,6 +2,19 @@
 
 A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/) store for reading and mutating Frappe DocType resources from WordPress components.
 
+## Standalone DataViews demo
+
+This repository includes a standalone WordPress DataViews app for browsing and managing Task, ToDo, Note, Contact, Customer, and Issue records on a local Frappe site.
+
+```sh
+npm install
+npm run demo
+```
+
+Open `http://127.0.0.1:5180`, then use the gear button to sign in with a Frappe password session or API key and secret.
+
+See the [complete demo setup and credentials guide](./demo/README.md) for proxy configuration, permissions, security notes, and troubleshooting.
+
 ## Install
 
 ```sh
