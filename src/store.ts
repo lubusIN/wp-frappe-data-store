@@ -19,6 +19,7 @@ type State = {
 	deleted: Record<string, boolean>;
 	pending: Record<string, boolean>;
 	errors: Record<string, unknown>;
+	requestIds: Record<string, number>;
 };
 
 type Action = {
@@ -30,6 +31,7 @@ type Action = {
 	listKey?: string;
 	name?: string;
 	error?: unknown;
+	requestId?: number;
 };
 
 const DEFAULT_STATE: State = {
@@ -38,7 +40,15 @@ const DEFAULT_STATE: State = {
 	deleted: {},
 	pending: {},
 	errors: {},
+	requestIds: {},
 };
+
+function isStaleRequest(state: State, action: Action): boolean {
+	return (
+		action.requestId !== undefined &&
+		state.requestIds[action.requestKey!] !== action.requestId
+	);
+}
 
 function reducer(state: State = DEFAULT_STATE, action: Action): State {
 	switch (action.type) {
@@ -47,14 +57,20 @@ function reducer(state: State = DEFAULT_STATE, action: Action): State {
 				...state,
 				pending: { ...state.pending, [action.requestKey!]: true },
 				errors: { ...state.errors, [action.requestKey!]: undefined },
+				requestIds: {
+					...state.requestIds,
+					[action.requestKey!]: action.requestId!,
+				},
 			};
 		case 'FAIL_REQUEST':
+			if (isStaleRequest(state, action)) return state;
 			return {
 				...state,
 				pending: { ...state.pending, [action.requestKey!]: false },
 				errors: { ...state.errors, [action.requestKey!]: action.error },
 			};
 		case 'RECEIVE_RECORD':
+			if (isStaleRequest(state, action)) return state;
 			return {
 				...state,
 				records: {
@@ -71,6 +87,7 @@ function reducer(state: State = DEFAULT_STATE, action: Action): State {
 				pending: { ...state.pending, [action.requestKey!]: false },
 			};
 		case 'RECEIVE_LIST': {
+			if (isStaleRequest(state, action)) return state;
 			const doctypeRecords = { ...state.records[action.doctype!] };
 			const deleted = { ...state.deleted };
 			for (const record of action.records!) {
@@ -89,6 +106,7 @@ function reducer(state: State = DEFAULT_STATE, action: Action): State {
 			};
 		}
 		case 'REMOVE_RECORD': {
+			if (isStaleRequest(state, action)) return state;
 			const doctypeRecords = { ...state.records[action.doctype!] };
 			delete doctypeRecords[action.name!];
 			return {
@@ -134,42 +152,53 @@ export function createFrappeDataStore(
 	const storeName = config.storeName ?? 'frappe/resources';
 	const apiPath = config.apiPath ?? '/api/resource';
 	const request: FrappeRequest = config.request ?? createFrappeRequest(config);
+	let nextRequestId = 0;
 
 	const actions = {
-		startRequest(requestKey: string) {
-			return { type: 'START_REQUEST', requestKey };
+		startRequest(requestKey: string, requestId: number) {
+			return { type: 'START_REQUEST', requestKey, requestId };
 		},
-		failRequest(requestKey: string, error: unknown) {
-			return { type: 'FAIL_REQUEST', requestKey, error };
+		failRequest(requestKey: string, error: unknown, requestId: number) {
+			return { type: 'FAIL_REQUEST', requestKey, error, requestId };
 		},
 		receiveRecord(
 			doctype: string,
 			record: FrappeResource,
-			requestKey: string
+			requestKey: string,
+			requestId: number
 		) {
-			return { type: 'RECEIVE_RECORD', doctype, record, requestKey };
+			return { type: 'RECEIVE_RECORD', doctype, record, requestKey, requestId };
 		},
 		receiveList(
 			doctype: string,
 			records: FrappeResource[],
 			listKey: string,
-			requestKey: string
+			requestKey: string,
+			requestId: number
 		) {
-			return { type: 'RECEIVE_LIST', doctype, records, listKey, requestKey };
+			return {
+				type: 'RECEIVE_LIST',
+				doctype,
+				records,
+				listKey,
+				requestKey,
+				requestId,
+			};
 		},
 		fetchResource(doctype: string, name: string) {
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const requestKey = getResourceKey(doctype, name);
-				dispatch.startRequest(requestKey);
+				const requestId = ++nextRequestId;
+				dispatch.startRequest(requestKey, requestId);
 				try {
 					const response = (await request({
 						method: 'GET',
 						path: resourcePath(apiPath, doctype, name),
 					})) as { data: FrappeResource };
-					dispatch.receiveRecord(doctype, response.data, requestKey);
+					dispatch.receiveRecord(doctype, response.data, requestKey, requestId);
 					return response.data;
 				} catch (error) {
-					dispatch.failRequest(requestKey, error);
+					dispatch.failRequest(requestKey, error, requestId);
 					throw error;
 				}
 			};
@@ -178,7 +207,8 @@ export function createFrappeDataStore(
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const listKey = getListKey(doctype, query);
 				const requestKey = `list:${listKey}`;
-				dispatch.startRequest(requestKey);
+				const requestId = ++nextRequestId;
+				dispatch.startRequest(requestKey, requestId);
 				try {
 					const response = (await request({
 						method: 'GET',
@@ -189,11 +219,12 @@ export function createFrappeDataStore(
 						doctype,
 						response.data,
 						listKey,
-						requestKey
+						requestKey,
+						requestId
 					);
 					return response.data;
 				} catch (error) {
-					dispatch.failRequest(requestKey, error);
+					dispatch.failRequest(requestKey, error, requestId);
 					throw error;
 				}
 			};
@@ -205,14 +236,15 @@ export function createFrappeDataStore(
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const name = values.name;
 				const requestKey = `save:${doctype}:${name ?? 'new'}`;
-				dispatch.startRequest(requestKey);
+				const requestId = ++nextRequestId;
+				dispatch.startRequest(requestKey, requestId);
 				try {
 					const response = (await request({
 						method: name ? 'PUT' : 'POST',
 						path: resourcePath(apiPath, doctype, name),
 						data: values,
 					})) as { data: FrappeResource };
-					dispatch.receiveRecord(doctype, response.data, requestKey);
+					dispatch.receiveRecord(doctype, response.data, requestKey, requestId);
 					await dispatch.invalidateResourceLists(doctype);
 					await (
 						dispatch as typeof dispatch & {
@@ -223,7 +255,7 @@ export function createFrappeDataStore(
 					).invalidateResolutionForStoreSelector('getResourceList');
 					return response.data;
 				} catch (error) {
-					dispatch.failRequest(requestKey, error);
+					dispatch.failRequest(requestKey, error, requestId);
 					throw error;
 				}
 			};
@@ -231,13 +263,14 @@ export function createFrappeDataStore(
 		deleteResource(doctype: string, name: string) {
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const requestKey = `delete:${doctype}:${name}`;
-				dispatch.startRequest(requestKey);
+				const requestId = ++nextRequestId;
+				dispatch.startRequest(requestKey, requestId);
 				try {
 					await request({
 						method: 'DELETE',
 						path: resourcePath(apiPath, doctype, name),
 					});
-					dispatch.removeResource(doctype, name, requestKey);
+					dispatch.removeResource(doctype, name, requestKey, requestId);
 					await dispatch.invalidateResourceLists(doctype);
 					await (
 						dispatch as typeof dispatch & {
@@ -247,13 +280,18 @@ export function createFrappeDataStore(
 						}
 					).invalidateResolutionForStoreSelector('getResourceList');
 				} catch (error) {
-					dispatch.failRequest(requestKey, error);
+					dispatch.failRequest(requestKey, error, requestId);
 					throw error;
 				}
 			};
 		},
-		removeResource(doctype: string, name: string, requestKey: string) {
-			return { type: 'REMOVE_RECORD', doctype, name, requestKey };
+		removeResource(
+			doctype: string,
+			name: string,
+			requestKey: string,
+			requestId: number
+		) {
+			return { type: 'REMOVE_RECORD', doctype, name, requestKey, requestId };
 		},
 		invalidateResourceLists(doctype: string) {
 			return { type: 'INVALIDATE_LISTS', doctype };

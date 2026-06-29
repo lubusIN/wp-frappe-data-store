@@ -1,7 +1,7 @@
 :root {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	color: #1e1e1e;
-	background: #f6f7f7;
+	background: #1e1e1e;
 	font-synthesis: none;
 	--wp-admin-theme-color: #3858e9;
 	--wp-admin-theme-color-darker-10: #2145e6;
@@ -21,9 +21,7 @@ body,
 
 body {
 	min-width: 320px;
-	background:
-		radial-gradient(circle at 80% -10%, rgba(56, 88, 233, 0.09), transparent 30rem),
-		#f6f7f7;
+	background: #1e1e1e;
 }
 
 button,
@@ -34,68 +32,145 @@ select {
 }
 
 .frappe-app-shell {
+	display: grid;
+	grid-template-columns: 240px minmax(0, 1fr);
 	min-height: 100vh;
+	padding: 8px;
+	background: #1e1e1e;
+}
+
+.frappe-sidebar {
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - 16px);
+	padding: 16px 12px 12px;
+	color: #fff;
+}
+
+.frappe-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	padding: 0 10px;
+}
+
+.frappe-brand svg {
+	fill: currentColor;
+}
+
+.frappe-brand strong {
+	font-size: 18px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+}
+
+.frappe-sidebar-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	margin-top: 28px;
+}
+
+.frappe-sidebar .frappe-doctype.components-button {
+	justify-content: flex-start;
+	width: 100%;
+	height: 40px;
+	padding: 0 10px;
+	color: #b4b4b4;
+	font-size: 14px;
+	font-weight: 400;
+	border-radius: 4px;
+}
+
+.frappe-sidebar .frappe-doctype.components-button:hover {
+	color: #fff;
+	background: #292929;
+}
+
+.frappe-sidebar .frappe-doctype.components-button.active {
+	color: #fff;
+	font-weight: 500;
+	background: #303030;
+}
+
+.frappe-sidebar .components-button .components-button__icon {
+	margin-right: 9px;
+}
+
+.frappe-sidebar-footer {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: auto;
+	padding: 10px 0 0;
+	border-top: 1px solid #303030;
+}
+
+.frappe-sidebar-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 36px;
+	padding: 0 10px;
+	color: #c3c4c7;
+	font-size: 12px;
+	background: #292929;
+	border-radius: 4px;
+}
+
+.frappe-site-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.frappe-sidebar .frappe-sidebar-settings.components-button {
+	flex: 0 0 auto;
+	width: 36px;
+	height: 36px;
+	color: #f0f0f1;
+	border-radius: 4px;
+}
+
+.frappe-sidebar .frappe-sidebar-settings.components-button:hover {
+	color: #fff;
+	background: #303030;
+}
+
+.frappe-main-frame {
+	min-width: 0;
+	min-height: calc(100vh - 16px);
+	overflow: hidden;
+	background: #fff;
+	border-radius: 8px;
 }
 
 .frappe-topbar {
 	position: sticky;
 	top: 0;
 	z-index: 20;
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	height: 64px;
-	padding: 0 20px;
-	background: rgba(255, 255, 255, 0.96);
+	height: 72px;
+	padding: 0 28px 0 32px;
+	background: #fff;
 	border-bottom: 1px solid #dcdcde;
-	backdrop-filter: blur(14px);
 }
 
-.frappe-brand-mark {
-	display: grid;
-	place-items: center;
-	width: 34px;
-	height: 34px;
-	color: #fff;
-	font-size: 18px;
-	font-weight: 700;
-	background: #3858e9;
-	border-radius: 9px;
-	box-shadow: 0 5px 14px rgba(56, 88, 233, 0.22);
+.frappe-topbar > .components-flex {
+	height: 100%;
 }
 
-.frappe-brand-copy {
-	display: flex;
-	flex-direction: column;
-	line-height: 1.25;
-}
-
-.frappe-brand-copy strong {
-	font-size: 14px;
-}
-
-.frappe-brand-copy span,
-.frappe-endpoint,
-.frappe-sidebar-foot {
-	color: #646970;
-	font-size: 12px;
-}
-
-.frappe-topbar-spacer {
-	flex: 1;
-}
-
-.frappe-endpoint {
-	display: flex;
-	align-items: center;
-	gap: 7px;
-	padding: 6px 10px;
-	background: #f6f7f7;
-	border: 1px solid #e0e0e0;
-	border-radius: 999px;
+.frappe-topbar h1 {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
 }
 
 .frappe-status-dot {
+	flex: 0 0 auto;
 	width: 7px;
 	height: 7px;
 	background: #00a32a;
@@ -103,185 +178,29 @@ select {
 	box-shadow: 0 0 0 3px rgba(0, 163, 42, 0.12);
 }
 
-.frappe-workspace {
-	display: grid;
-	grid-template-columns: 260px minmax(0, 1fr);
-	min-height: calc(100vh - 64px);
-}
-
-.frappe-sidebar {
-	position: sticky;
-	top: 64px;
-	display: flex;
-	flex-direction: column;
-	height: calc(100vh - 64px);
-	padding: 22px 14px 16px;
-	background: #fff;
-	border-right: 1px solid #dcdcde;
-}
-
-.frappe-sidebar-label,
-.frappe-kicker {
-	margin: 0 10px 10px;
-	color: #757575;
-	font-size: 11px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.frappe-sidebar nav {
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-}
-
-.frappe-doctype {
-	display: grid;
-	grid-template-columns: 32px 1fr;
-	gap: 10px;
-	align-items: start;
-	width: 100%;
-	padding: 10px;
-	color: #2f2f2f;
-	text-align: left;
-	background: transparent;
-	border: 0;
-	border-radius: 6px;
-	cursor: pointer;
-}
-
-.frappe-doctype:hover {
-	background: #f6f7f7;
-}
-
-.frappe-doctype.active {
-	color: #1d35b4;
-	background: #f0f3ff;
-}
-
-.frappe-doctype-icon {
-	display: grid;
-	place-items: center;
-	width: 30px;
-	height: 30px;
-	color: #50575e;
-	font-size: 12px;
-	font-weight: 650;
-	background: #f0f0f1;
-	border-radius: 6px;
-}
-
-.frappe-doctype.active .frappe-doctype-icon {
-	color: #fff;
-	background: #3858e9;
-}
-
-.frappe-doctype strong,
-.frappe-doctype small {
-	display: block;
-}
-
-.frappe-doctype strong {
-	margin: 1px 0 3px;
-	font-size: 13px;
-	font-weight: 550;
-}
-
-.frappe-doctype small {
-	overflow: hidden;
-	color: #757575;
-	font-size: 11px;
-	line-height: 1.35;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.frappe-sidebar-foot {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: auto;
-	padding: 14px 10px 0;
-	border-top: 1px solid #f0f0f1;
-}
-
 .frappe-main {
 	min-width: 0;
-	padding: 44px clamp(24px, 4vw, 64px) 64px;
-}
-
-.frappe-page-heading {
-	display: flex;
-	justify-content: space-between;
-	align-items: end;
-	gap: 24px;
-	max-width: 1320px;
-	margin: 0 auto 24px;
-}
-
-.frappe-page-heading .frappe-kicker {
-	margin-left: 0;
-}
-
-.frappe-page-heading h1 {
-	margin: 0;
-	font-family: Georgia, "Times New Roman", serif;
-	font-size: clamp(34px, 4vw, 48px);
-	font-weight: 500;
-	letter-spacing: -0.025em;
-}
-
-.frappe-page-heading p:last-child {
-	max-width: 580px;
-	margin: 9px 0 0;
-	color: #646970;
-	font-size: 14px;
-}
-
-.frappe-heading-stat {
-	display: flex;
-	flex-direction: column;
-	align-items: end;
-	padding-bottom: 5px;
-}
-
-.frappe-heading-stat strong {
-	font-size: 24px;
-	font-weight: 500;
-}
-
-.frappe-heading-stat span {
-	color: #757575;
-	font-size: 11px;
-	text-transform: uppercase;
+	padding: 0;
+	background: #fff;
 }
 
 .frappe-main > .components-notice {
-	max-width: 1320px;
-	margin: 0 auto 16px;
+	margin: 16px 32px;
 }
 
 .frappe-data-card {
 	position: relative;
-	max-width: 1320px;
-	min-height: 420px;
-	margin: 0 auto;
+	min-height: calc(100vh - 88px);
+	margin: 0;
 	overflow: hidden;
 	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 10px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 12px 34px rgba(0, 0, 0, 0.035);
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 }
 
 .frappe-data-card .dataviews-wrapper {
-	min-height: 420px;
-}
-
-.frappe-grid-actions {
-	display: flex;
-	gap: 8px;
-	margin-left: auto;
+	min-height: calc(100vh - 88px);
 }
 
 .frappe-empty-state {
@@ -289,7 +208,7 @@ select {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	min-height: 260px;
+	min-height: 320px;
 	padding: 32px;
 	text-align: center;
 }
@@ -297,9 +216,9 @@ select {
 .frappe-empty-icon {
 	display: grid;
 	place-items: center;
-	width: 52px;
-	height: 52px;
-	color: #3858e9;
+	width: 48px;
+	height: 48px;
+	color: var(--wp-admin-theme-color);
 	background: #f0f3ff;
 	border-radius: 50%;
 }
@@ -324,7 +243,68 @@ select {
 	color: #646970;
 	font-size: 13px;
 	background: rgba(255, 255, 255, 0.86);
-	backdrop-filter: blur(2px);
+}
+
+.frappe-connection-screen {
+	display: grid;
+	place-items: center;
+	min-height: 100vh;
+	padding: 32px 20px;
+	background: #1e1e1e;
+}
+
+.frappe-connection-card {
+	width: min(100%, 520px);
+	padding: 40px;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+}
+
+.frappe-connection-brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 36px;
+}
+
+.frappe-connection-brand svg {
+	fill: currentColor;
+}
+
+.frappe-connection-brand div {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.3;
+}
+
+.frappe-connection-brand strong {
+	font-size: 18px;
+}
+
+.frappe-connection-brand span {
+	color: #646970;
+	font-size: 12px;
+}
+
+.frappe-connection-card h1 {
+	margin: 0 0 12px;
+	font-size: 24px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+}
+
+.frappe-connection-checking {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	min-height: 180px;
+	color: #50575e;
+}
+
+.frappe-connection-checking p {
+	margin: 0;
 }
 
 .frappe-modal-intro {
@@ -343,25 +323,35 @@ select {
 .frappe-auth-switcher {
 	display: flex;
 	gap: 8px;
-	margin-bottom: 20px;
+	margin: 20px 0;
 }
 
 .frappe-connection-modal form,
 .frappe-resource-form {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
-}
-
-.frappe-resource-fields {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 20px;
-	min-width: min(680px, 75vw);
 }
 
-.frappe-resource-fields .components-base-control:has(textarea) {
-	grid-column: 1 / -1;
+.frappe-resource-form {
+	width: min(560px, calc(100vw - 96px));
+	max-width: 100%;
+	min-width: 0;
+	overflow-x: clip;
+}
+
+.frappe-resource-form .dataforms-layouts__wrapper,
+.frappe-resource-form .dataforms-layouts__wrapper > * {
+	min-width: 0;
+}
+
+.frappe-resource-form .dataforms-layouts__wrapper {
+	gap: 20px;
+}
+
+.components-modal__content:has(.frappe-resource-form) {
+	max-width: 100%;
+	overflow-x: hidden;
 }
 
 .frappe-modal-actions {
@@ -380,62 +370,60 @@ select {
 	border-left: 3px solid #d63638;
 }
 
-@media (max-width: 900px) {
-	.frappe-workspace {
-		grid-template-columns: 1fr;
+@media (max-width: 800px) {
+	.frappe-app-shell {
+		grid-template-columns: 72px minmax(0, 1fr);
 	}
 
 	.frappe-sidebar {
-		position: static;
-		display: block;
-		height: auto;
-		padding: 12px 16px;
-		border-right: 0;
-		border-bottom: 1px solid #dcdcde;
-		overflow-x: auto;
+		padding-inline: 8px;
 	}
 
-	.frappe-sidebar-label,
-	.frappe-sidebar-foot,
-	.frappe-doctype small {
+	.frappe-brand {
+		justify-content: center;
+		padding: 0;
+	}
+
+	.frappe-brand strong,
+	.frappe-sidebar .components-button:not(.has-icon) span,
+	.frappe-sidebar .components-button__text {
 		display: none;
 	}
 
-	.frappe-sidebar nav {
-		flex-direction: row;
-		width: max-content;
+	.frappe-sidebar .frappe-doctype.components-button {
+		justify-content: center;
+		padding: 0;
+		font-size: 0;
 	}
 
-	.frappe-doctype {
-		grid-template-columns: 26px auto;
-		align-items: center;
-		width: auto;
-		padding: 7px 10px;
+	.frappe-sidebar .components-button .components-button__icon {
+		margin-right: 0;
 	}
 
-	.frappe-doctype-icon {
-		width: 26px;
-		height: 26px;
+	.frappe-sidebar-footer {
+		flex-direction: column;
 	}
 
-	.frappe-main {
-		padding: 30px 18px 48px;
+	.frappe-sidebar-status {
+		padding: 9px;
 	}
+
+	.frappe-site-label {
+		display: none;
+	}
+
+	.frappe-topbar {
+		padding-inline: 20px 14px;
+	}
+
 }
 
 @media (max-width: 600px) {
-	.frappe-brand-copy span,
-	.frappe-endpoint,
-	.frappe-heading-stat {
-		display: none;
+	.frappe-connection-card {
+		padding: 28px 24px;
 	}
 
-	.frappe-page-heading h1 {
-		font-size: 34px;
-	}
-
-	.frappe-resource-fields {
-		grid-template-columns: 1fr;
-		min-width: min(440px, 75vw);
+	.frappe-resource-form {
+		width: min(420px, calc(100vw - 64px));
 	}
 }

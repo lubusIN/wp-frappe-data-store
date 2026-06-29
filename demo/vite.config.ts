@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
+import type { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
@@ -7,6 +8,7 @@ const root = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, root, 'VITE_');
 	const frappeTarget = env.VITE_FRAPPE_TARGET || 'https://frappe.localhost';
+	const siteUrlHeader = 'x-frappe-site-url';
 
 	return {
 		root,
@@ -22,10 +24,28 @@ export default defineConfig(({ mode }) => {
 			proxy: {
 				'/frappe-api': {
 					target: frappeTarget,
+					router: (request: IncomingMessage) => {
+						const header = request.headers[siteUrlHeader];
+						const candidate = Array.isArray(header) ? header[0] : header;
+						if (!candidate) return frappeTarget;
+						try {
+							const url = new URL(candidate);
+							return ['http:', 'https:'].includes(url.protocol)
+								? url.origin
+								: frappeTarget;
+						} catch {
+							return frappeTarget;
+						}
+					},
 					changeOrigin: true,
 					secure: false,
 					cookieDomainRewrite: '',
 					rewrite: (path) => path.replace(/^\/frappe-api/, ''),
+					configure: (proxy) => {
+						proxy.on('proxyReq', (proxyRequest) => {
+							proxyRequest.removeHeader(siteUrlHeader);
+						});
+					},
 				},
 			},
 		},

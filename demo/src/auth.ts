@@ -1,8 +1,76 @@
 const TOKEN_KEY = 'wp-frappe-demo-token';
+const SITE_URL_KEY = 'wp-frappe-demo-site-url';
+const DEFAULT_SITE_URL = 'https://frappe.localhost';
+export const SITE_URL_HEADER = 'X-Frappe-Site-URL';
+const CONNECTION_TIMEOUT_MS = 8000;
+
+async function fetchFrappe(
+	path: string,
+	options: RequestInit
+): Promise<Response> {
+	const controller = new AbortController();
+	const timeout = window.setTimeout(
+		() => controller.abort(),
+		CONNECTION_TIMEOUT_MS
+	);
+	try {
+		return await fetch(`/frappe-api${path}`, {
+			...options,
+			signal: controller.signal,
+		});
+	} catch (error) {
+		if (controller.signal.aborted) {
+			throw new Error(`Could not reach ${getFrappeSiteUrl()}. Check the site URL.`);
+		}
+		throw error;
+	} finally {
+		window.clearTimeout(timeout);
+	}
+}
+
+export function normalizeFrappeSiteUrl(value: string): string {
+	let url: URL;
+	try {
+		url = new URL(value.trim());
+	} catch {
+		throw new Error('Enter a valid Frappe site URL, including http:// or https://.');
+	}
+	if (!['http:', 'https:'].includes(url.protocol)) {
+		throw new Error('The Frappe site URL must use http:// or https://.');
+	}
+	if (url.username || url.password) {
+		throw new Error('Do not include credentials in the Frappe site URL.');
+	}
+	if (url.pathname !== '/' || url.search || url.hash) {
+		throw new Error('Enter the Frappe site origin without a path, query, or hash.');
+	}
+	return url.origin;
+}
+
+export function getFrappeSiteUrl(): string {
+	return sessionStorage.getItem(SITE_URL_KEY) || DEFAULT_SITE_URL;
+}
+
+export function saveFrappeSiteUrl(value: string): string {
+	const siteUrl = normalizeFrappeSiteUrl(value);
+	sessionStorage.setItem(SITE_URL_KEY, siteUrl);
+	return siteUrl;
+}
+
+function getSiteUrlHeader(): HeadersInit {
+	return { [SITE_URL_HEADER]: getFrappeSiteUrl() };
+}
 
 export function getAuthorizationHeader(): HeadersInit {
 	const token = sessionStorage.getItem(TOKEN_KEY);
 	return token ? { Authorization: `token ${token}` } : {};
+}
+
+export function getConnectionHeaders(): HeadersInit {
+	return {
+		...getSiteUrlHeader(),
+		...getAuthorizationHeader(),
+	};
 }
 
 export function hasApiToken(): boolean {
@@ -39,9 +107,12 @@ export async function loginWithPassword(
 	username: string,
 	password: string
 ): Promise<void> {
-	const response = await fetch('/frappe-api/api/method/login', {
+	const response = await fetchFrappe('/api/method/login', {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		headers: {
+			...getSiteUrlHeader(),
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
 		body: new URLSearchParams({ usr: username, pwd: password }),
 		credentials: 'include',
 	});
@@ -52,9 +123,30 @@ export async function loginWithPassword(
 	if (!response.ok || body.exc_type) throw new Error(getFrappeMessage(body));
 }
 
+export async function validateFrappeConnection(): Promise<string> {
+	const response = await fetchFrappe(
+		'/api/method/frappe.auth.get_logged_user',
+		{
+			method: 'GET',
+			headers: getConnectionHeaders(),
+			credentials: 'include',
+		}
+	);
+	const body = (await response.json().catch(() => ({}))) as Record<
+		string,
+		unknown
+	>;
+	if (!response.ok || body.exc_type) throw new Error(getFrappeMessage(body));
+	if (typeof body.message !== 'string' || body.message === 'Guest') {
+		throw new Error('Connect with a valid Frappe account to continue.');
+	}
+	return body.message;
+}
+
 export async function logoutSession(): Promise<void> {
-	await fetch('/frappe-api/api/method/logout', {
+	await fetchFrappe('/api/method/logout', {
 		method: 'GET',
+		headers: getSiteUrlHeader(),
 		credentials: 'include',
 	});
 }

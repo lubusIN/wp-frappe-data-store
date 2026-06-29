@@ -2,6 +2,7 @@ import { createRegistry } from '@wordpress/data';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	createFrappeDataStore,
+	getListKey,
 	type FrappeRequest,
 } from '../src';
 
@@ -97,6 +98,41 @@ describe('Frappe data store', () => {
 		).rejects.toThrow('Permission denied');
 		expect(registry.select(store).getRequestError('Task:TASK-4')).toBe(error);
 		expect(registry.select(store).isRequestPending('Task:TASK-4')).toBe(false);
+	});
+
+	it('ignores a stale list response after a newer refresh completes', async () => {
+		let rejectGuestRequest!: (error: Error) => void;
+		let resolveAuthenticatedRequest!: (value: unknown) => void;
+		request
+			.mockReturnValueOnce(
+				new Promise((_, reject) => {
+					rejectGuestRequest = reject;
+				})
+			)
+			.mockReturnValueOnce(
+				new Promise((resolve) => {
+					resolveAuthenticatedRequest = resolve;
+				})
+			);
+		const { store, registry } = setup();
+		const query = { limit: 10 };
+		const actions = registry.dispatch(store);
+
+		const guestRequest = actions.fetchResourceList('Task', query);
+		const authenticatedRequest = actions.fetchResourceList('Task', query);
+		resolveAuthenticatedRequest({ data: [{ name: 'TASK-AUTHENTICATED' }] });
+		await authenticatedRequest;
+
+		const permissionError = new Error('Insufficient Permission');
+		rejectGuestRequest(permissionError);
+		await expect(guestRequest).rejects.toBe(permissionError);
+
+		expect(registry.select(store).getResourceList('Task', query)).toEqual([
+			{ name: 'TASK-AUTHENTICATED' },
+		]);
+		expect(
+			registry.select(store).getRequestError(`list:${getListKey('Task', query)}`)
+		).toBeUndefined();
 	});
 
 	it('invalidates cached lists after a mutation', async () => {

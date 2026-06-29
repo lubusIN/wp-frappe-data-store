@@ -1,16 +1,16 @@
-# Frappe Resource Desk demo
+# Frappe CRM DataViews demo
 
-This standalone React app demonstrates `wp-frappe-data-store` with the WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) data grid. It can browse, search, filter, create, edit, bulk-select, and delete records from several Frappe DocTypes.
+This standalone React app demonstrates `wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records.
 
-The demo is configured for `https://frappe.localhost` by default.
+The connection screen defaults to `https://frappe.localhost` and accepts another Frappe site origin.
 
 ## Requirements
 
 - Node.js 18 or newer.
-- A running Frappe site reachable at `https://frappe.localhost`.
+- A running Frappe site with the CRM app installed, reachable at `https://frappe.localhost`.
 - A Frappe user with the appropriate DocType permissions.
 
-The included presets are Task, ToDo, Note, Contact, Customer, and Issue. Some presets, such as Customer and Issue, require ERPNext or another app that provides those DocTypes.
+The left sidebar mirrors Frappe CRM's primary data navigation from Leads through Tasks. It maps to `CRM Lead`, `CRM Deal`, `Contact`, `CRM Organization`, `FCRM Note`, and `CRM Task`. CRM Tasks and Notes expose `reference_doctype` and `reference_docname` so they can be linked to leads, deals, contacts, or organizations.
 
 ## Start the demo
 
@@ -25,11 +25,13 @@ Then open [http://127.0.0.1:5180](http://127.0.0.1:5180).
 
 The demo intentionally uses port `5180` because the Frappe Local desktop app may already use Vite's default port `5173`.
 
-The Vite development server proxies `/frappe-api/*` to `https://frappe.localhost/*`. This avoids browser CORS restrictions and accepts the locally generated HTTPS certificate. The browser never connects directly to the Frappe origin.
+The Vite development server proxies `/frappe-api/*` to the site selected on the connection screen. This avoids browser CORS restrictions and accepts locally generated HTTPS certificates. The browser never connects directly to the Frappe origin.
 
-## Use another Frappe URL
+## Default Frappe URL
 
-Copy the example environment file:
+Enter the desired site origin on the connection screen, for example `https://crm.example.test`. The selected origin is stored in browser `sessionStorage` and disappears when the browser session closes.
+
+To change the prefilled fallback, copy the example environment file:
 
 ```sh
 cp demo/.env.example demo/.env.local
@@ -41,17 +43,18 @@ Then update the target:
 VITE_FRAPPE_TARGET=https://my-frappe-site.localhost
 ```
 
-Restart `npm run demo` after changing the target. Do not add usernames, passwords, API keys, or API secrets to this file.
+Restart `npm run demo` after changing the fallback. Do not add usernames, passwords, API keys, or API secrets to this file.
 
 ## Provide credentials
 
-Open the demo and select the gear button in the upper-right corner. The connection dialog supports two authentication methods.
+On startup, the demo validates the saved session or API token. If it is missing or invalid, the resource shell stays hidden and a connection screen requests the Frappe site URL and credentials. The connection screen supports two authentication methods.
 
 ### Password session
 
-1. Select **Password**.
-2. Enter the Frappe username, such as `Administrator`.
-3. Enter the user's password and select **Sign in**.
+1. Enter the Frappe site URL.
+2. Select **Password**.
+3. Enter the Frappe username, such as `Administrator`.
+4. Enter the user's password and select **Connect**.
 
 The password is sent once to Frappe's standard `/api/method/login` endpoint. It is not written to local storage or session storage. Frappe returns an HTTP-only session cookie, which the browser sends through the development proxy on later requests.
 
@@ -69,10 +72,10 @@ First create an API key and secret in Frappe:
 
 Then return to the demo:
 
-1. Open the connection dialog using the gear button.
+1. Enter the Frappe site URL.
 2. Select **API token**.
 3. Paste the API key and API secret.
-4. Select **Use token**.
+4. Select **Connect**.
 
 The demo sends the standard Frappe header:
 
@@ -80,7 +83,7 @@ The demo sends the standard Frappe header:
 Authorization: token API_KEY:API_SECRET
 ```
 
-The combined token is stored only in browser `sessionStorage`. It disappears when the browser session is closed. Select **Clear credentials** in the connection dialog to remove it immediately and log out any password session.
+The combined token is stored only in browser `sessionStorage`. It disappears when the browser session is closed. Select **Disconnect** in the header connection dialog to remove it immediately and log out any password session.
 
 Do not commit API credentials to this repository or expose a privileged token in a production browser bundle.
 
@@ -93,7 +96,7 @@ Authentication does not bypass Frappe permissions. The selected user needs these
 - **Write** to edit records.
 - **Delete** to delete records.
 
-Grant these through the normal Frappe Role Permission Manager and assign the relevant roles to the user. A user may be able to browse one preset, such as ToDo, while receiving a permission error for another, such as Customer.
+Grant these through the normal Frappe Role Permission Manager and assign the relevant CRM roles to the user. A user may be able to browse Leads while receiving a permission error for Tasks if their CRM permissions differ.
 
 ## Using the demo
 
@@ -121,15 +124,15 @@ The request reached Frappe, but the current user cannot read or modify that DocT
 - Open connection settings and sign in again.
 - Confirm that `npm run demo` is running; the session-cookie flow depends on the Vite proxy.
 - If using an API token, confirm that both values belong to the same enabled Frappe user.
-- Select **Clear credentials**, then reconnect using one authentication method.
+- Select **Disconnect**, then reconnect using one authentication method.
 
-### A preset DocType does not exist
+### A CRM DocType does not exist
 
-Customer and Issue are commonly provided by ERPNext. Use a preset installed by your site, or update [`src/doctypes.ts`](./src/doctypes.ts) with definitions for your own DocTypes.
+Confirm that the Frappe CRM app is installed and migrated on the target site. The definitions in [`src/doctypes.ts`](./src/doctypes.ts) follow CRM's native DocType names rather than ERPNext's legacy CRM records.
 
-### The Frappe site uses a different hostname
+### The Frappe site URL does not work
 
-Set `VITE_FRAPPE_TARGET` in `demo/.env.local` and restart the development server. The value must include the protocol, for example `https://frappe.example.test`.
+Return to Connection settings and enter the complete site origin, including `http://` or `https://` and any port. Do not include a path, query, credentials, or fragment.
 
 ## Validate a change
 

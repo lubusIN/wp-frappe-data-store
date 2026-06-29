@@ -1,9 +1,13 @@
 import {
 	Button,
+	Flex,
+	FlexBlock,
+	FlexItem,
 	Modal,
 	Notice,
 	Spinner,
 	Tooltip,
+	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
 import {
 	DataViews,
@@ -12,14 +16,31 @@ import {
 	type Field,
 	type View,
 } from '@wordpress/dataviews';
-import { Icon, pencil, plus, settings, trash, update } from '@wordpress/icons';
-import { useEffect, useMemo, useState } from 'react';
+import {
+	Icon,
+	check,
+	group,
+	home,
+	page,
+	pencil,
+	people,
+	plus,
+	settings,
+	starFilled,
+	trash,
+	wordpress,
+} from '@wordpress/icons';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import type { FrappeListQuery, FrappeResource } from '../../src';
 import {
 	useFrappeResourceActions,
 	useFrappeResourceList,
 } from '../../src';
-import { hasApiToken } from './auth';
+import {
+	getFrappeSiteUrl,
+	validateFrappeConnection,
+} from './auth';
+import { ConnectionScreen } from './ConnectionScreen';
 import { ConnectionModal } from './ConnectionModal';
 import {
 	DOC_TYPES,
@@ -28,12 +49,6 @@ import {
 } from './doctypes';
 import { ResourceEditor } from './ResourceEditor';
 import { frappeStore } from './store';
-
-const LIST_QUERY: FrappeListQuery = {
-	fields: ['*'],
-	limit: 100,
-	orderBy: 'modified desc',
-};
 
 function initialView(definition: DocTypeDefinition): View {
 	const visibleFields = definition.fields
@@ -82,18 +97,42 @@ function errorMessage(error: unknown): string {
 	return typeof error === 'string' ? error : 'The request could not be completed.';
 }
 
-export default function App() {
+const SIDEBAR_ICONS = {
+	leads: group,
+	deals: starFilled,
+	contacts: people,
+	organizations: home,
+	notes: page,
+	tasks: check,
+};
+
+function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	const [definition, setDefinition] = useState(DOC_TYPES[0]!);
 	const [view, setView] = useState<View>(() => initialView(DOC_TYPES[0]!));
 	const [selection, setSelection] = useState<string[]>([]);
 	const [showConnection, setShowConnection] = useState(false);
 	const [showCreate, setShowCreate] = useState(false);
 	const [notice, setNotice] = useState<string>();
+	const [actionError, setActionError] = useState<string>();
+	const [isDeleting, setDeleting] = useState(false);
+	const [pendingDeletion, setPendingDeletion] = useState<{
+		items: FrappeResource[];
+		doctype: string;
+		onActionPerformed?: (items: FrappeResource[]) => void;
+	}>();
 	const fields = useMemo(() => makeFields(definition), [definition]);
+	const listQuery = useMemo<FrappeListQuery>(
+		() => ({
+			fields: definition.fields.map((field) => field.id),
+			limit: 100,
+			orderBy: 'modified desc',
+		}),
+		[definition]
+	);
 	const { resources, isResolving, error } = useFrappeResourceList(
 		frappeStore,
 		definition.name,
-		LIST_QUERY
+		listQuery
 	);
 	const {
 		deleteResource,
@@ -106,6 +145,7 @@ export default function App() {
 		setView(initialView(definition));
 		setSelection([]);
 		setNotice(undefined);
+		setActionError(undefined);
 	}, [definition]);
 
 	const processed = useMemo(
@@ -115,8 +155,32 @@ export default function App() {
 
 	async function refresh() {
 		setNotice(undefined);
+		setActionError(undefined);
 		await Promise.resolve(invalidateResourceLists(definition.name));
-		await fetchResourceList(definition.name, LIST_QUERY);
+		await fetchResourceList(definition.name, listQuery);
+	}
+
+	async function confirmDeletion() {
+		if (!pendingDeletion) return;
+		setDeleting(true);
+		setActionError(undefined);
+		try {
+			await Promise.all(
+				pendingDeletion.items.map((item) =>
+					deleteResource(pendingDeletion.doctype, item.name)
+				)
+			);
+			setSelection([]);
+			setNotice(
+				`${pendingDeletion.items.length} record${pendingDeletion.items.length === 1 ? '' : 's'} deleted.`
+			);
+			pendingDeletion.onActionPerformed?.(pendingDeletion.items);
+		} catch (deleteError) {
+			setActionError(errorMessage(deleteError));
+		} finally {
+			setDeleting(false);
+			setPendingDeletion(undefined);
+		}
 	}
 
 	const actions = useMemo<Action<FrappeResource>[]>(
@@ -150,95 +214,81 @@ export default function App() {
 				isDestructive: true,
 				supportsBulk: true,
 				callback: (items, { onActionPerformed }) => {
-					if (
-						!window.confirm(
-							`Delete ${items.length} ${definition.name}${items.length === 1 ? '' : ' records'}? This cannot be undone.`
-						)
-					) {
-						return;
-					}
-					void Promise.all(
-						items.map((item) => deleteResource(definition.name, item.name))
-					).then(() => {
-						setSelection([]);
-						setNotice(`${items.length} record${items.length === 1 ? '' : 's'} deleted.`);
-						onActionPerformed?.(items);
+					setPendingDeletion({
+						items,
+						doctype: definition.name,
+						onActionPerformed,
 					});
 				},
 			},
 		],
-		[definition, deleteResource, saveResource]
+		[definition, saveResource]
 	);
 
 	return (
 		<div className="frappe-app-shell">
-			<header className="frappe-topbar">
-				<div className="frappe-brand-mark" aria-hidden="true">
-					F
+			<aside className="frappe-sidebar">
+				<div className="frappe-brand">
+					<Icon icon={wordpress} size={32} />
+					<strong>WP Frappe</strong>
 				</div>
-				<div className="frappe-brand-copy">
-					<strong>Frappe Resource Desk</strong>
-					<span>WordPress DataViews demo</span>
-				</div>
-				<div className="frappe-topbar-spacer" />
-				<span className="frappe-endpoint">
-					<span className="frappe-status-dot" /> frappe.localhost
-				</span>
-				<Tooltip text="Connection settings">
-					<Button
-						icon={settings}
-						label="Connection settings"
-						onClick={() => setShowConnection(true)}
-					/>
-				</Tooltip>
-			</header>
-
-			<div className="frappe-workspace">
-				<aside className="frappe-sidebar">
-					<p className="frappe-sidebar-label">DocTypes</p>
-					<nav aria-label="Frappe DocTypes">
-						{DOC_TYPES.map((docType) => (
-							<button
+				<nav className="frappe-sidebar-nav" aria-label="CRM resources">
+					{DOC_TYPES.map((docType) => {
+						const isActive = docType.name === definition.name;
+						return (
+							<Button
 								key={docType.name}
-								type="button"
-								className={
-									docType.name === definition.name
-										? 'frappe-doctype active'
-										: 'frappe-doctype'
-								}
+								icon={SIDEBAR_ICONS[docType.icon]}
+								iconSize={20}
+								className={`frappe-doctype${isActive ? ' active' : ''}`}
+								aria-current={isActive ? 'page' : undefined}
 								onClick={() => setDefinition(docType)}
 							>
-								<span className="frappe-doctype-icon">
-									{docType.name.slice(0, 1)}
-								</span>
-								<span>
-									<strong>{docType.label}</strong>
-									<small>{docType.description}</small>
-								</span>
-							</button>
-						))}
-					</nav>
-					<div className="frappe-sidebar-foot">
-						<span>{hasApiToken() ? 'API token' : 'Session / guest'}</span>
-						<Button variant="link" onClick={() => setShowConnection(true)}>
-							Change
-						</Button>
-					</div>
-				</aside>
+								{docType.label}
+							</Button>
+						);
+					})}
+				</nav>
+				<div className="frappe-sidebar-footer">
+					<span
+						className="frappe-sidebar-status"
+						title={getFrappeSiteUrl()}
+					>
+						<span className="frappe-status-dot" />
+						<span className="frappe-site-label">
+							{new URL(getFrappeSiteUrl()).host}
+						</span>
+					</span>
+					<Tooltip text="Connection settings">
+						<Button
+							icon={settings}
+							iconSize={20}
+							label="Connection settings"
+							className="frappe-sidebar-settings"
+							onClick={() => setShowConnection(true)}
+						/>
+					</Tooltip>
+				</div>
+			</aside>
 
-				<main className="frappe-main">
-					<div className="frappe-page-heading">
-						<div>
-							<p className="frappe-kicker">{definition.name} resources</p>
+			<div className="frappe-main-frame">
+				<header className="frappe-topbar">
+					<Flex align="center" gap={3}>
+						<FlexBlock>
 							<h1>{definition.label}</h1>
-							<p>{definition.description}</p>
-						</div>
-						<div className="frappe-heading-stat">
-							<strong>{resources?.length ?? '—'}</strong>
-							<span>loaded records</span>
-						</div>
-					</div>
-
+						</FlexBlock>
+						<FlexItem>
+							<Button
+								icon={plus}
+								variant="primary"
+								onClick={() => setShowCreate(true)}
+							>
+								Add {definition.label.replace(/s$/, '')}
+							</Button>
+						</FlexItem>
+					</Flex>
+				</header>
+				<main className="frappe-main">
 					{Boolean(error) && (
 						<Notice status="error" isDismissible={false}>
 							<strong>Couldn’t load {definition.label.toLowerCase()}.</strong>{' '}
@@ -251,6 +301,11 @@ export default function App() {
 					{notice && (
 						<Notice status="success" onRemove={() => setNotice(undefined)}>
 							{notice}
+						</Notice>
+					)}
+					{actionError && (
+						<Notice status="error" onRemove={() => setActionError(undefined)}>
+							{actionError}
 						</Notice>
 					)}
 
@@ -274,25 +329,6 @@ export default function App() {
 								list: {},
 							}}
 							config={{ perPageSizes: [10, 20, 50, 100] }}
-							header={
-								<div className="frappe-grid-actions">
-									<Button
-										icon={update}
-										variant="secondary"
-										onClick={() => void refresh()}
-										disabled={isResolving}
-									>
-										Refresh
-									</Button>
-									<Button
-										icon={plus}
-										variant="primary"
-										onClick={() => setShowCreate(true)}
-									>
-										Add {definition.name}
-									</Button>
-								</div>
-							}
 							empty={
 								<div className="frappe-empty-state">
 									<div className="frappe-empty-icon">
@@ -317,8 +353,21 @@ export default function App() {
 				<ConnectionModal
 					onClose={() => setShowConnection(false)}
 					onAuthenticated={refresh}
+					onDisconnected={onDisconnected}
 				/>
 			)}
+			<ConfirmDialog
+				isOpen={Boolean(pendingDeletion)}
+				isBusy={isDeleting}
+				confirmButtonText="Delete"
+				onConfirm={() => void confirmDeletion()}
+				onCancel={() => setPendingDeletion(undefined)}
+			>
+				Delete {pendingDeletion?.items.length ?? 0}{' '}
+				{pendingDeletion?.doctype ?? 'record'}
+				{pendingDeletion?.items.length === 1 ? '' : ' records'}?{' '}
+				<strong>This action cannot be undone.</strong>
+			</ConfirmDialog>
 			{showCreate && (
 				<Modal
 					title={`Create ${definition.name}`}
@@ -336,5 +385,42 @@ export default function App() {
 				</Modal>
 			)}
 		</div>
+	);
+}
+
+type ConnectionState = 'checking' | 'connected' | 'disconnected';
+
+export default function App() {
+	const [connectionState, setConnectionState] =
+		useState<ConnectionState>('checking');
+
+	useEffect(() => {
+		let isCurrent = true;
+		void validateFrappeConnection().then(
+			() => {
+				if (isCurrent) setConnectionState('connected');
+			},
+			() => {
+				if (isCurrent) setConnectionState('disconnected');
+			}
+		);
+		return () => {
+			isCurrent = false;
+		};
+	}, []);
+
+	if (connectionState === 'checking') {
+		return <ConnectionScreen isChecking />;
+	}
+	if (connectionState === 'disconnected') {
+		return (
+			<ConnectionScreen
+				isChecking={false}
+				onAuthenticated={() => setConnectionState('connected')}
+			/>
+		);
+	}
+	return (
+		<ResourceDesk onDisconnected={() => setConnectionState('disconnected')} />
 	);
 }

@@ -4,14 +4,14 @@ A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/refe
 
 ## Standalone DataViews demo
 
-This repository includes a standalone WordPress DataViews app for browsing and managing Task, ToDo, Note, Contact, Customer, and Issue records on a local Frappe site.
+This repository includes a standalone WordPress DataViews app connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes.
 
 ```sh
 npm install
 npm run demo
 ```
 
-Open `http://127.0.0.1:5180`, then use the gear button to sign in with a Frappe password session or API key and secret.
+Open `http://127.0.0.1:5180`, enter the Frappe site URL, then sign in with a password session or API key and secret. The resource desk appears only after the connection is validated.
 
 See the [complete demo setup and credentials guide](./demo/README.md) for proxy configuration, permissions, security notes, and troubleshooting.
 
