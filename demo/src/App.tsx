@@ -43,24 +43,28 @@ import {
 import { ConnectionScreen } from './ConnectionScreen';
 import { ConnectionModal } from './ConnectionModal';
 import {
-	DOC_TYPES,
+	DOC_TYPE_SHELLS,
+	loadDocTypeDefinition,
 	type DocTypeDefinition,
+	type DocTypeShell,
 	type ResourceFieldDefinition,
 } from './doctypes';
 import { ResourceEditor } from './ResourceEditor';
 import { frappeStore } from './store';
 
-function initialView(definition: DocTypeDefinition): View {
-	const visibleFields = definition.fields
-		.filter((field) => field.id !== definition.titleField && field.id !== 'owner')
-		.slice(0, 5)
-		.map((field) => field.id);
+function initialView(definition?: DocTypeDefinition): View {
+	const visibleFields = definition
+		? definition.fields
+			.filter((field) => field.id !== definition.titleField && field.id !== 'owner')
+			.slice(0, 5)
+			.map((field) => field.id)
+		: [];
 	return {
 		type: 'table',
 		page: 1,
 		perPage: 10,
 		fields: visibleFields,
-		titleField: definition.titleField,
+		titleField: definition?.titleField ?? 'name',
 		showTitle: true,
 		layout: { density: 'balanced', enableMoving: true },
 	};
@@ -107,8 +111,13 @@ const SIDEBAR_ICONS = {
 };
 
 function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
-	const [definition, setDefinition] = useState(DOC_TYPES[0]!);
-	const [view, setView] = useState<View>(() => initialView(DOC_TYPES[0]!));
+	const [selectedShell, setSelectedShell] = useState<DocTypeShell>(
+		DOC_TYPE_SHELLS[0]!
+	);
+	const [definition, setDefinition] = useState<DocTypeDefinition | undefined>();
+	const [definitionLoading, setDefinitionLoading] = useState(true);
+	const [definitionError, setDefinitionError] = useState<string>();
+	const [view, setView] = useState<View>(() => initialView());
 	const [selection, setSelection] = useState<string[]>([]);
 	const [showConnection, setShowConnection] = useState(false);
 	const [showCreate, setShowCreate] = useState(false);
@@ -120,18 +129,49 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 		doctype: string;
 		onActionPerformed?: (items: FrappeResource[]) => void;
 	}>();
-	const fields = useMemo(() => makeFields(definition), [definition]);
-	const listQuery = useMemo<FrappeListQuery>(
-		() => ({
-			fields: definition.fields.map((field) => field.id),
-			limit: 100,
-			orderBy: 'modified desc',
-		}),
+
+	useEffect(() => {
+		let isCurrent = true;
+		setDefinitionLoading(true);
+		setDefinitionError(undefined);
+		loadDocTypeDefinition(selectedShell)
+			.then((loaded) => {
+				if (!isCurrent) return;
+				setDefinition(loaded);
+				setView(initialView(loaded));
+			})
+			.catch((error) => {
+				if (!isCurrent) return;
+				setDefinitionError(
+					error instanceof Error ? error.message : String(error)
+				);
+			})
+			.finally(() => {
+				if (!isCurrent) return;
+				setDefinitionLoading(false);
+			});
+		return () => {
+			isCurrent = false;
+		};
+	}, [selectedShell]);
+
+	const fields = useMemo(
+		() => (definition ? makeFields(definition) : []),
 		[definition]
 	);
+
+	const listQuery = useMemo<FrappeListQuery>(() => {
+		const fields = definition?.fields.map((field) => field.id) ?? ['name'];
+		return {
+			fields,
+			limit: 100,
+			orderBy: 'modified desc',
+		};
+	}, [definition]);
+
 	const { resources, isResolving, error } = useFrappeResourceList(
 		frappeStore,
-		definition.name,
+		selectedShell.name,
 		listQuery
 	);
 	const {
@@ -142,7 +182,11 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	} = useFrappeResourceActions(frappeStore);
 
 	useEffect(() => {
-		setView(initialView(definition));
+		if (!definition) {
+			setView(initialView());
+		} else {
+			setView(initialView(definition));
+		}
 		setSelection([]);
 		setNotice(undefined);
 		setActionError(undefined);
@@ -156,8 +200,9 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	async function refresh() {
 		setNotice(undefined);
 		setActionError(undefined);
-		await Promise.resolve(invalidateResourceLists(definition.name));
-		await fetchResourceList(definition.name, listQuery);
+		const doctype = definition?.name ?? selectedShell.name;
+		await Promise.resolve(invalidateResourceLists(doctype));
+		await fetchResourceList(doctype, listQuery);
 	}
 
 	async function confirmDeletion() {
@@ -183,8 +228,12 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 		}
 	}
 
-	const actions = useMemo<Action<FrappeResource>[]>(
-		() => [
+const actions = useMemo<Action<FrappeResource>[]>(() => {
+		if (!definition) {
+			return [];
+		}
+
+		return [
 			{
 				id: 'edit',
 				label: 'Edit',
@@ -199,11 +248,14 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 						item={items[0]}
 						onCancel={() => closeModal?.()}
 						onSubmit={async (values) => {
-							await saveResource(definition.name, values);
-							setNotice(`${definition.name} saved.`);
-							onActionPerformed?.(items);
-							closeModal?.();
-						}}
+						await saveResource(definition.name, {
+							...values,
+							name: items[0]?.name,
+						});
+						setNotice(`${definition.name} saved.`);
+						onActionPerformed?.(items);
+						closeModal?.();
+					}}
 					/>
 				),
 			},
@@ -221,9 +273,8 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 					});
 				},
 			},
-		],
-		[definition, saveResource]
-	);
+		];
+	}, [definition, saveResource]);
 
 	return (
 		<div className="frappe-app-shell">
@@ -233,8 +284,8 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 					<strong>WP Frappe</strong>
 				</div>
 				<nav className="frappe-sidebar-nav" aria-label="CRM resources">
-					{DOC_TYPES.map((docType) => {
-						const isActive = docType.name === definition.name;
+					{DOC_TYPE_SHELLS.map((docType) => {
+						const isActive = docType.name === selectedShell.name;
 						return (
 							<Button
 								key={docType.name}
@@ -242,7 +293,7 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 								iconSize={20}
 								className={`frappe-doctype${isActive ? ' active' : ''}`}
 								aria-current={isActive ? 'page' : undefined}
-								onClick={() => setDefinition(docType)}
+								onClick={() => setSelectedShell(docType)}
 							>
 								{docType.label}
 							</Button>
@@ -275,23 +326,33 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 				<header className="frappe-topbar">
 					<Flex align="center" gap={3}>
 						<FlexBlock>
-							<h1>{definition.label}</h1>
+							<h1>{definition?.label ?? selectedShell.label}</h1>
 						</FlexBlock>
 						<FlexItem>
 							<Button
 								icon={plus}
 								variant="primary"
 								onClick={() => setShowCreate(true)}
+								disabled={!definition}
 							>
-								Add {definition.label.replace(/s$/, '')}
+								Add {(definition?.label ?? selectedShell.label).replace(/s$/, '')}
 							</Button>
 						</FlexItem>
 					</Flex>
 				</header>
 				<main className="frappe-main">
+					{Boolean(definitionError) && (
+						<Notice status="error" isDismissible={false}>
+							<strong>Couldn’t load {selectedShell.label.toLowerCase()} metadata.</strong>{' '}
+							{definitionError}{' '}
+							<Button variant="link" onClick={() => setShowConnection(true)}>
+								Reconnect to Frappe
+							</Button>
+						</Notice>
+					)}
 					{Boolean(error) && (
 						<Notice status="error" isDismissible={false}>
-							<strong>Couldn’t load {definition.label.toLowerCase()}.</strong>{' '}
+							<strong>Couldn’t load {selectedShell.label.toLowerCase()}.</strong>{' '}
 							{errorMessage(error)}{' '}
 							<Button variant="link" onClick={() => setShowConnection(true)}>
 								Connect to Frappe
@@ -309,20 +370,20 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 						</Notice>
 					)}
 
-					<section className="frappe-data-card" aria-label={`${definition.label} data`}>
+					<section className="frappe-data-card" aria-label={`${(definition?.label ?? selectedShell.label).toLowerCase()} data`}>
 						<DataViews<FrappeResource>
 							view={view}
 							onChangeView={setView}
 							fields={fields}
 							data={processed.data}
 							getItemId={(item) => item.name}
-							isLoading={isResolving}
+							isLoading={isResolving || definitionLoading}
 							paginationInfo={processed.paginationInfo}
 							selection={selection}
 							onChangeSelection={setSelection}
 							actions={actions}
 							search
-							searchLabel={`Search ${definition.label.toLowerCase()}`}
+							searchLabel={`Search ${(definition?.label ?? selectedShell.label).toLowerCase()}`}
 							defaultLayouts={{
 								table: {},
 								grid: { layout: { density: 'comfortable' } },
@@ -334,7 +395,7 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 									<div className="frappe-empty-icon">
 										<Icon icon={plus} size={24} />
 									</div>
-									<h2>No {definition.label.toLowerCase()} found</h2>
+									<h2>No {(definition?.label ?? selectedShell.label).toLowerCase()} found</h2>
 									<p>Create a record or adjust the active filters.</p>
 								</div>
 							}
@@ -342,7 +403,7 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 						{isResolving && !resources && (
 							<div className="frappe-loading-overlay">
 								<Spinner />
-								<span>Loading {definition.label.toLowerCase()}…</span>
+								<span>Loading {selectedShell.label.toLowerCase()}…</span>
 							</div>
 						)}
 					</section>
@@ -368,7 +429,7 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 				{pendingDeletion?.items.length === 1 ? '' : ' records'}?{' '}
 				<strong>This action cannot be undone.</strong>
 			</ConfirmDialog>
-			{showCreate && (
+			{showCreate && definition && (
 				<Modal
 					title={`Create ${definition.name}`}
 					onRequestClose={() => setShowCreate(false)}

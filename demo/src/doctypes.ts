@@ -1,6 +1,11 @@
+import { createFrappeRequest } from '../../src';
+import { getConnectionHeaders } from './auth';
+
 export type ResourceFieldDefinition = {
 	id: string;
 	label: string;
+	description?: string;
+	placeholder?: string;
 	type?:
 		| 'text'
 		| 'textarea'
@@ -22,163 +27,202 @@ export type CrmIcon =
 	| 'notes'
 	| 'tasks';
 
-export type DocTypeDefinition = {
+export type DocTypeShell = {
 	name: string;
 	label: string;
 	description: string;
-	titleField: string;
 	icon: CrmIcon;
+};
+
+export type DocTypeDefinition = DocTypeShell & {
+	titleField: string;
 	fields: ResourceFieldDefinition[];
 };
 
-const systemFields: ResourceFieldDefinition[] = [
-	{ id: 'name', label: 'ID', readOnly: true },
-	{ id: 'owner', label: 'Owner', readOnly: true },
-	{ id: 'modified', label: 'Last modified', type: 'datetime', readOnly: true },
-];
+const request = createFrappeRequest({
+	baseUrl: '/frappe-api',
+	headers: getConnectionHeaders,
+	credentials: 'include',
+});
 
-// These names and fields mirror the DocTypes shipped by the Frappe CRM app.
-export const DOC_TYPES: DocTypeDefinition[] = [
+const definitionCache: Record<string, DocTypeDefinition> = {};
+
+export const DOC_TYPE_SHELLS: DocTypeShell[] = [
 	{
 		name: 'CRM Lead',
 		label: 'Leads',
 		description: 'People and companies entering your sales pipeline.',
-		titleField: 'lead_name',
 		icon: 'leads',
-		fields: [
-			{ id: 'lead_name', label: 'Lead name', readOnly: true },
-			{ id: 'first_name', label: 'First name', required: true },
-			{ id: 'middle_name', label: 'Middle name' },
-			{ id: 'last_name', label: 'Last name' },
-			{ id: 'status', label: 'Status', required: true },
-			{ id: 'organization', label: 'Organization' },
-			{ id: 'email', label: 'Email' },
-			{ id: 'mobile_no', label: 'Mobile no.' },
-			{ id: 'job_title', label: 'Job title' },
-			{ id: 'lead_owner', label: 'Lead owner' },
-			{ id: 'source', label: 'Source' },
-			{ id: 'industry', label: 'Industry' },
-			{ id: 'converted', label: 'Converted', type: 'checkbox', readOnly: true },
-			...systemFields,
-		],
 	},
 	{
 		name: 'CRM Deal',
 		label: 'Deals',
 		description: 'Qualified opportunities, value, ownership, and next steps.',
-		titleField: 'organization',
 		icon: 'deals',
-		fields: [
-			{ id: 'organization', label: 'Organization' },
-			{ id: 'status', label: 'Status', required: true },
-			{ id: 'lead', label: 'Lead' },
-			{ id: 'deal_owner', label: 'Deal owner' },
-			{ id: 'deal_value', label: 'Deal value', type: 'number' },
-			{ id: 'probability', label: 'Probability', type: 'number' },
-			{ id: 'expected_closure_date', label: 'Expected closure', type: 'date' },
-			{ id: 'next_step', label: 'Next step' },
-			{ id: 'email', label: 'Primary email' },
-			{ id: 'mobile_no', label: 'Primary mobile no.' },
-			{ id: 'source', label: 'Source' },
-			...systemFields,
-		],
 	},
 	{
 		name: 'Contact',
 		label: 'Contacts',
 		description: 'People connected to your leads, deals, and organizations.',
-		titleField: 'full_name',
 		icon: 'contacts',
-		fields: [
-			{ id: 'full_name', label: 'Full name', readOnly: true },
-			{ id: 'first_name', label: 'First name', required: true },
-			{ id: 'last_name', label: 'Last name' },
-			{ id: 'email_id', label: 'Email', readOnly: true },
-			{ id: 'mobile_no', label: 'Mobile no.', readOnly: true },
-			{ id: 'company_name', label: 'Company' },
-			{ id: 'designation', label: 'Designation' },
-			{
-				id: 'status',
-				label: 'Status',
-				type: 'select',
-				options: ['Passive', 'Open', 'Replied'],
-			},
-			...systemFields,
-		],
 	},
 	{
 		name: 'CRM Organization',
 		label: 'Organizations',
 		description: 'Companies associated with contacts and opportunities.',
-		titleField: 'organization_name',
 		icon: 'organizations',
-		fields: [
-			{ id: 'organization_name', label: 'Organization name', required: true },
-			{ id: 'website', label: 'Website' },
-			{ id: 'industry', label: 'Industry' },
-			{ id: 'territory', label: 'Territory' },
-			{
-				id: 'no_of_employees',
-				label: 'No. of employees',
-				type: 'select',
-				options: ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'],
-			},
-			{ id: 'annual_revenue', label: 'Annual revenue', type: 'number' },
-			{ id: 'currency', label: 'Currency' },
-			...systemFields,
-		],
 	},
 	{
 		name: 'FCRM Note',
 		label: 'Notes',
 		description: 'Context and follow-up notes attached to CRM records.',
-		titleField: 'title',
 		icon: 'notes',
-		fields: [
-			{ id: 'title', label: 'Title', required: true },
-			{ id: 'content', label: 'Content', type: 'textarea' },
-			{
-				id: 'reference_doctype',
-				label: 'Reference document type',
-				type: 'select',
-				options: ['CRM Lead', 'CRM Deal', 'Contact', 'CRM Organization'],
-			},
-			{ id: 'reference_docname', label: 'Reference record' },
-			...systemFields,
-		],
 	},
 	{
 		name: 'CRM Task',
 		label: 'Tasks',
 		description: 'Sales follow-ups linked directly to leads and deals.',
-		titleField: 'title',
 		icon: 'tasks',
-		fields: [
-			{ id: 'title', label: 'Title', required: true },
-			{
-				id: 'status',
-				label: 'Status',
-				type: 'select',
-				options: ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled'],
-			},
-			{
-				id: 'priority',
-				label: 'Priority',
-				type: 'select',
-				options: ['Low', 'Medium', 'High'],
-			},
-			{ id: 'assigned_to', label: 'Assigned to' },
-			{ id: 'start_date', label: 'Start date', type: 'date' },
-			{ id: 'due_date', label: 'Due date', type: 'datetime' },
-			{
-				id: 'reference_doctype',
-				label: 'Reference document type',
-				type: 'select',
-				options: ['CRM Lead', 'CRM Deal', 'Contact', 'CRM Organization'],
-			},
-			{ id: 'reference_docname', label: 'Reference record' },
-			{ id: 'description', label: 'Description', type: 'textarea' },
-			...systemFields,
-		],
 	},
 ];
+
+type FrappeDocTypeFieldMeta = {
+	fieldname: string;
+	label?: string;
+	fieldtype?: string;
+	options?: string;
+	reqd?: number;
+	read_only?: number;
+	hidden?: number;
+	description?: string;
+	field_description?: string;
+	placeholder?: string;
+	field_placeholder?: string;
+};
+
+type FrappeDocTypeMeta = {
+	name: string;
+	title_field?: string;
+	fields?: FrappeDocTypeFieldMeta[];
+};
+
+function humanizeFieldName(fieldname: string) {
+	return fieldname
+		.replace(/_/g, ' ')
+		.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase());
+}
+
+function mapFieldType(fieldtype?: string): ResourceFieldDefinition['type'] {
+	switch (fieldtype) {
+		case 'Check':
+		case 'Currency':
+		case 'Int':
+		case 'Float':
+		case 'Percent':
+		case 'Rating':
+		case 'Duration':
+			return 'number';
+		case 'Date':
+			return 'date';
+		case 'Datetime':
+		case 'Time':
+			return 'datetime';
+		case 'Text':
+		case 'Long Text':
+		case 'Small Text':
+		case 'Code':
+		case 'Markdown':
+			return 'textarea';
+		case 'Select':
+			return 'select';
+		case 'Link':
+		case 'Dynamic Link':
+			return 'text';
+		default:
+			return 'text';
+	}
+}
+
+function parseFieldOptions(fieldtype?: string, options?: string): string[] | undefined {
+	if (fieldtype !== 'Select' || !options) {
+		return undefined;
+	}
+
+	return options
+		.split('\n')
+		.map((option) => option.trim())
+		.filter(Boolean);
+}
+
+function isDisplayableField(field: FrappeDocTypeFieldMeta) {
+	const hidden = Boolean(field.hidden);
+	const fieldtype = field.fieldtype;
+	const layoutOnly = new Set([
+		'Section Break',
+		'Column Break',
+		'HTML',
+		'Button',
+		'Fold',
+		'Table',
+		'Table MultiSelect',
+		'Button',
+	]);
+
+	return (
+		Boolean(field.fieldname) &&
+		!hidden &&
+		fieldtype !== undefined &&
+		!layoutOnly.has(fieldtype)
+	);
+}
+
+function normalizeField(field: FrappeDocTypeFieldMeta): ResourceFieldDefinition {
+	const type = mapFieldType(field.fieldtype);
+	return {
+		id: field.fieldname,
+		label: field.label || humanizeFieldName(field.fieldname),
+		description: field.description || field.field_description,
+		placeholder: field.placeholder || field.field_placeholder,
+		type,
+		options: parseFieldOptions(field.fieldtype, field.options),
+		required: Boolean(field.reqd),
+		readOnly: Boolean(field.read_only),
+	};
+}
+
+export async function loadDocTypeDefinition(
+	shell: DocTypeShell
+): Promise<DocTypeDefinition> {
+	const cachedDefinition = definitionCache[shell.name];
+	if (cachedDefinition) {
+		return cachedDefinition;
+	}
+
+	const response = (await request({
+		method: 'GET',
+		path: `/api/resource/DocType/${encodeURIComponent(shell.name)}`,
+		query: {
+			fields: JSON.stringify([
+				'name',
+				'title_field',
+				'fields',
+			]),
+		},
+	})) as { data: FrappeDocTypeMeta };
+
+	const fields = (response.data.fields ?? [])
+		.filter(isDisplayableField)
+		.map(normalizeField);
+
+	const titleField =
+		response.data.title_field || fields[0]?.id || 'name';
+
+	const definition: DocTypeDefinition = {
+		...shell,
+		titleField,
+		fields,
+	};
+
+	definitionCache[shell.name] = definition;
+	return definition;
+}

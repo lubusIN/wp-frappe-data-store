@@ -1,6 +1,6 @@
 # Frappe CRM DataViews demo
 
-This standalone React app demonstrates `wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records.
+This standalone React app demonstrates `wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records. The editor form is metadata-driven: field labels, types, descriptions, and placeholders are loaded from the target DocType metadata when available.
 
 The connection screen defaults to `https://frappe.localhost` and accepts another Frappe site origin.
 
@@ -102,6 +102,7 @@ Grant these through the normal Frappe Role Permission Manager and assign the rel
 
 - Choose a DocType from the left sidebar.
 - Use the DataViews toolbar to search, filter, sort, paginate, change columns, or switch between table, list, and grid layouts.
+- Form fields display descriptions and placeholders from the selected DocType's metadata when available.
 - Select **Add _DocType_** to create a record.
 - Use a row's action menu to edit or delete it.
 - Select several rows to perform bulk deletion.

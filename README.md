@@ -4,7 +4,7 @@ A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/refe
 
 ## Standalone DataViews demo
 
-This repository includes a standalone WordPress DataViews app connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes.
+This repository includes a standalone WordPress DataViews app connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes. The demo also loads DocType metadata dynamically from Frappe, so record forms can surface field descriptions and placeholders when available.
 
 ```sh
 npm install
