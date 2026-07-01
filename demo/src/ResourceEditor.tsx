@@ -4,7 +4,7 @@ import {
 	type Field,
 	type Form,
 } from '@wordpress/dataviews';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import type { FormEvent } from 'react';
 import type { FrappeResource } from '../../src';
 import type { DocTypeDefinition, ResourceFieldDefinition } from './doctypes';
@@ -68,21 +68,20 @@ function makeInitialValues(
 function makeDataFormFields(
 	definition: DocTypeDefinition
 ): Field<Record<string, unknown>>[] {
-	return definition.fields
-		.filter((field) => !field.readOnly)
-		.map((field) => ({
-			id: field.id,
-			label: field.label,
-			description: field.description,
-			placeholder: field.placeholder,
-			type: dataFormType(field),
-			Edit: field.type === 'textarea' ? { control: 'textarea', rows: 5 } : undefined,
-			elements: field.options?.map((option) => ({
-				value: option,
-				label: option,
-			})),
-			isValid: field.required ? { required: true } : undefined,
-		}));
+	return definition.fields.map((field) => ({
+		id: field.id,
+		label: field.label,
+		description: field.description,
+		placeholder: field.placeholder,
+		type: dataFormType(field),
+		Edit: field.type === 'textarea' ? { control: 'textarea', rows: 5 } : undefined,
+		elements: field.options?.map((option) => ({
+			value: option,
+			label: option,
+		})),
+		isValid: field.required ? { required: true } : undefined,
+		readOnly: field.readOnly,
+	}));
 }
 
 export function ResourceEditor({
@@ -122,8 +121,11 @@ export function ResourceEditor({
 		setError(undefined);
 		try {
 			const baseValues = item?.name && values.name === undefined ? { name: item.name } : {};
+			const entries = Object.entries({ ...baseValues, ...values }).filter(
+				([key]) => !definition.fields.find((f) => f.id === key)?.readOnly
+			);
 			const payload = Object.fromEntries(
-				Object.entries({ ...baseValues, ...values }).map(([key, value]) => {
+				entries.map(([key, value]) => {
 					const field = definition.fields.find((candidate) => candidate.id === key);
 					if (field?.type === 'datetime' && typeof value === 'string') {
 						return [key, value.replace('T', ' ')];

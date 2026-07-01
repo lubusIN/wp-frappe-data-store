@@ -92,13 +92,31 @@ export function OpenTasks() {
 }
 ```
 
-Calling `getResource` or `getResourceList` through `useSelect` triggers their resolvers automatically. The package exports `createFrappeDataStore` for custom registries and `createFrappeRequest` for standalone transport setup.
+Calling `getResource` or `getResourceList` through `useSelect` triggers their resolvers automatically. The package exports `createFrappeDataStore` for custom registries, `createFrappeRequest` for standalone transport setup, and `loadDocTypeDefinition` for retrieving normalized Frappe DocType metadata.
+
+## DocType metadata
+
+The package provides a read-only DocType metadata selector on the store and a helper for loading that metadata from Frappe.
+
+```js
+import {
+  loadDocTypeDefinition,
+  type DocTypeDefinition,
+} from 'wp-frappe-data-store';
+
+const definition = await loadDocTypeDefinition(request, 'CRM Lead');
+console.log(definition.titleField, definition.fields.length);
+```
+
+The normalized field metadata is useful for building dynamic editors and list adapters.
 
 ## API
 
-- Selectors: `getResource`, `getResourceList`, `isRequestPending`, `getRequestError`
+- Selectors: `getResource`, `getResourceList`, `getDocTypeDefinition`, `isRequestPending`, `getRequestError`
 - Actions: `fetchResource`, `fetchResourceList`, `saveResource`, `deleteResource`, `invalidateResourceLists`
-- Hooks: `useFrappeResource`, `useFrappeResourceList`, `useFrappeResourceActions`
+- Hooks: `useFrappeResource`, `useFrappeResourceList`, `useFrappeResourceActions`, `useDocTypeDefinition`
+- Metadata helpers: `loadDocTypeDefinition`
+- Types: `DocTypeDefinition`, `ResourceFieldDefinition`
 
 List responses are normalized by Frappe's `name` field. When an explicit `fields` list is supplied, the store automatically includes `name`.
 

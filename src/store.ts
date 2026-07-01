@@ -1,5 +1,6 @@
 import { createReduxStore, register } from '@wordpress/data';
 import { createFrappeRequest } from './request';
+import { getCachedDocTypeDefinition } from './doctype';
 import type {
 	FrappeDataStore,
 	FrappeListQuery,
@@ -311,6 +312,9 @@ export function createFrappeDataStore(
 			return names
 				?.map((name) => state.records[doctype]?.[name])
 				.filter((record): record is FrappeResource => Boolean(record));
+		},
+		getDocTypeDefinition(_state: State, doctype: string) {
+			return getCachedDocTypeDefinition(doctype);
 		},
 		isRequestPending(state: State, requestKey: string) {
 			return state.pending[requestKey] ?? false;

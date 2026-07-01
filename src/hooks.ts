@@ -4,6 +4,7 @@ import type {
 	FrappeListQuery,
 	FrappeResource,
 	FrappeResourceActions,
+	DocTypeDefinition,
 	RequestStatus,
 } from './types';
 import { getListKey, getResourceKey } from './utils';
@@ -14,6 +15,9 @@ type BoundSelectors = {
 		doctype: string,
 		query?: FrappeListQuery
 	) => FrappeResource[] | undefined;
+	getDocTypeDefinition: (
+		doctype: string
+	) => DocTypeDefinition | undefined;
 	isRequestPending: (requestKey: string) => boolean;
 	getRequestError: (requestKey: string) => unknown;
 };
@@ -61,4 +65,19 @@ export function useFrappeResourceActions(
 	store: FrappeDataStore
 ): FrappeResourceActions {
 	return useDispatch(store) as unknown as FrappeResourceActions;
+}
+
+export function useDocTypeDefinition(
+	store: FrappeDataStore,
+	doctype: string
+): { docTypeDefinition: DocTypeDefinition | undefined } {
+	return useSelect(
+		(select) => {
+			const selectors = select(store) as unknown as BoundSelectors;
+			return {
+				docTypeDefinition: selectors.getDocTypeDefinition(doctype),
+			};
+		},
+		[store, doctype]
+	);
 }

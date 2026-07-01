@@ -5,6 +5,30 @@ export type FrappeResource = {
 	[key: string]: unknown;
 };
 
+export type ResourceFieldDefinition = {
+	id: string;
+	label: string;
+	description?: string;
+	placeholder?: string;
+	type?:
+		| 'text'
+		| 'textarea'
+		| 'select'
+		| 'checkbox'
+		| 'date'
+		| 'datetime'
+		| 'number';
+	options?: string[];
+	required?: boolean;
+	readOnly?: boolean;
+};
+
+export type DocTypeDefinition = {
+	name: string;
+	titleField: string;
+	fields: ResourceFieldDefinition[];
+};
+
 export type FrappeFilter =
 	| [field: string, operator: string, value: unknown]
 	| [doctype: string, field: string, operator: string, value: unknown];
@@ -71,6 +95,10 @@ type FrappeSelectors = {
 		doctype: string,
 		query?: FrappeListQuery
 	) => FrappeResource[] | undefined;
+	getDocTypeDefinition: (
+		state: unknown,
+		doctype: string
+	) => DocTypeDefinition | undefined;
 	isRequestPending: (state: unknown, requestKey: string) => boolean;
 	getRequestError: (state: unknown, requestKey: string) => unknown;
 };

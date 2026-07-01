@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	createFrappeDataStore,
 	getListKey,
+	loadDocTypeDefinition,
 	type FrappeRequest,
 } from '../src';
 
@@ -152,5 +153,52 @@ describe('Frappe data store', () => {
 			registry.resolveSelect(store).getResourceList('Task', query)
 		).resolves.toHaveLength(2);
 		expect(request).toHaveBeenCalledTimes(3);
+	});
+
+	it('loads and caches a DocType definition through the helper and exposes it through the selector', async () => {
+		request.mockResolvedValueOnce({
+			data: {
+				name: 'Task',
+				title_field: 'subject',
+				fields: [
+					{
+						fieldname: 'subject',
+						label: 'Subject',
+						fieldtype: 'Data',
+					},
+				],
+			},
+		});
+		const { store, registry } = setup();
+
+		const definition = await loadDocTypeDefinition(request, 'Task');
+
+		expect(definition).toEqual({
+			name: 'Task',
+			titleField: 'subject',
+			fields: [
+				{
+					id: 'subject',
+					label: 'Subject',
+					type: 'text',
+					required: false,
+					readOnly: false,
+				},
+			],
+		});
+
+		expect(request).toHaveBeenCalledTimes(1);
+		expect(request).toHaveBeenCalledWith({
+			method: 'GET',
+			path: '/api/resource/DocType/Task',
+			query: {
+				fields: JSON.stringify(['name', 'title_field', 'fields']),
+			},
+		});
+
+		expect(registry.select(store).getDocTypeDefinition('Task')).toBe(definition);
+		const cachedDefinition = await loadDocTypeDefinition(request, 'Task');
+		expect(cachedDefinition).toBe(definition);
+		expect(request).toHaveBeenCalledTimes(1);
 	});
 });

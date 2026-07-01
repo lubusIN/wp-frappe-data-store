@@ -33,10 +33,15 @@ import {
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import type { FrappeListQuery, FrappeResource } from '../../src';
 import {
+	createFrappeRequest,
+	getListKey,
+	loadDocTypeDefinition,
+	useDocTypeDefinition,
 	useFrappeResourceActions,
 	useFrappeResourceList,
 } from '../../src';
 import {
+	getConnectionHeaders,
 	getFrappeSiteUrl,
 	validateFrappeConnection,
 } from './auth';
@@ -44,7 +49,6 @@ import { ConnectionScreen } from './ConnectionScreen';
 import { ConnectionModal } from './ConnectionModal';
 import {
 	DOC_TYPE_SHELLS,
-	loadDocTypeDefinition,
 	type DocTypeDefinition,
 	type DocTypeShell,
 	type ResourceFieldDefinition,
@@ -114,9 +118,12 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	const [selectedShell, setSelectedShell] = useState<DocTypeShell>(
 		DOC_TYPE_SHELLS[0]!
 	);
-	const [definition, setDefinition] = useState<DocTypeDefinition | undefined>();
-	const [definitionLoading, setDefinitionLoading] = useState(true);
-	const [definitionError, setDefinitionError] = useState<string>();
+	const { docTypeDefinition: definition } = useDocTypeDefinition(
+		frappeStore,
+		selectedShell.name
+	);
+	const [isDefinitionResolving, setDefinitionResolving] = useState(false);
+	const [definitionError, setDefinitionError] = useState<unknown>();
 	const [view, setView] = useState<View>(() => initialView());
 	const [selection, setSelection] = useState<string[]>([]);
 	const [showConnection, setShowConnection] = useState(false);
@@ -124,6 +131,16 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	const [notice, setNotice] = useState<string>();
 	const [actionError, setActionError] = useState<string>();
 	const [isDeleting, setDeleting] = useState(false);
+	const [visibleResources, setVisibleResources] = useState<FrappeResource[] | undefined>();
+	const metadataRequest = useMemo(
+		() =>
+			createFrappeRequest({
+				baseUrl: '/frappe-api',
+				headers: getConnectionHeaders,
+				credentials: 'include',
+			}),
+		[]
+	);
 	const [pendingDeletion, setPendingDeletion] = useState<{
 		items: FrappeResource[];
 		doctype: string;
@@ -131,29 +148,37 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	}>();
 
 	useEffect(() => {
-		let isCurrent = true;
-		setDefinitionLoading(true);
+		let isMounted = true;
+		setDefinitionResolving(true);
 		setDefinitionError(undefined);
-		loadDocTypeDefinition(selectedShell)
-			.then((loaded) => {
-				if (!isCurrent) return;
-				setDefinition(loaded);
-				setView(initialView(loaded));
-			})
+
+		loadDocTypeDefinition(metadataRequest, selectedShell.name)
 			.catch((error) => {
-				if (!isCurrent) return;
-				setDefinitionError(
-					error instanceof Error ? error.message : String(error)
-				);
+				if (isMounted) {
+					setDefinitionError(error);
+				}
 			})
 			.finally(() => {
-				if (!isCurrent) return;
-				setDefinitionLoading(false);
+				if (isMounted) {
+					setDefinitionResolving(false);
+				}
 			});
+
 		return () => {
-			isCurrent = false;
+			isMounted = false;
 		};
-	}, [selectedShell]);
+	}, [metadataRequest, selectedShell.name]);
+
+	useEffect(() => {
+		if (definition) {
+			setView(initialView(definition));
+		} else {
+			setView(initialView());
+		}
+		setSelection([]);
+		setNotice(undefined);
+		setActionError(undefined);
+	}, [definition]);
 
 	const fields = useMemo(
 		() => (definition ? makeFields(definition) : []),
@@ -169,11 +194,11 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 		};
 	}, [definition]);
 
-	const { resources, isResolving, error } = useFrappeResourceList(
-		frappeStore,
-		selectedShell.name,
-		listQuery
+	const currentListKey = useMemo(
+		() => getListKey(selectedShell.name, listQuery),
+		[selectedShell.name, listQuery]
 	);
+
 	const {
 		deleteResource,
 		fetchResourceList,
@@ -181,20 +206,36 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 		saveResource,
 	} = useFrappeResourceActions(frappeStore);
 
-	useEffect(() => {
-		if (!definition) {
-			setView(initialView());
-		} else {
-			setView(initialView(definition));
-		}
-		setSelection([]);
-		setNotice(undefined);
-		setActionError(undefined);
-	}, [definition]);
+	const { resources, isResolving, error } = useFrappeResourceList(
+		frappeStore,
+		selectedShell.name,
+		listQuery
+	);
 
+	useEffect(() => {
+		setVisibleResources(undefined);
+	}, [currentListKey]);
+
+	useEffect(() => {
+		if (resources) {
+			setVisibleResources(resources);
+		}
+	}, [resources]);
+
+	useEffect(() => {
+		fetchResourceList(selectedShell.name, listQuery).catch(() => {});
+	}, [fetchResourceList, listQuery, selectedShell.name]);
+
+	const displayedResources = resources ?? visibleResources;
+	const placeholderResources =
+		(isResolving || isDefinitionResolving) && !(displayedResources?.length)
+			? Array.from({ length: 6 }).map((_, index) => ({
+				name: `placeholder-${selectedShell.name}-${index}`,
+			}))
+			: undefined;
 	const processed = useMemo(
-		() => filterSortAndPaginate(resources || [], view, fields),
-		[resources, view, fields]
+		() => filterSortAndPaginate((displayedResources || placeholderResources) ?? [], view, fields),
+		[displayedResources, placeholderResources, view, fields]
 	);
 
 	async function refresh() {
@@ -289,7 +330,7 @@ const actions = useMemo<Action<FrappeResource>[]>(() => {
 						return (
 							<Button
 								key={docType.name}
-								icon={SIDEBAR_ICONS[docType.icon]}
+								icon={SIDEBAR_ICONS[docType.icon as keyof typeof SIDEBAR_ICONS]}
 								iconSize={20}
 								className={`frappe-doctype${isActive ? ' active' : ''}`}
 								aria-current={isActive ? 'page' : undefined}
@@ -326,8 +367,16 @@ const actions = useMemo<Action<FrappeResource>[]>(() => {
 				<header className="frappe-topbar">
 					<Flex align="center" gap={3}>
 						<FlexBlock>
-							<h1>{definition?.label ?? selectedShell.label}</h1>
-						</FlexBlock>
+								<h1>
+									{selectedShell.label}
+									{(isResolving || isDefinitionResolving) && (
+										<span style={{ marginLeft: 12, fontSize: '0.85em', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+											<Spinner />
+											Loading
+										</span>
+									)}
+								</h1>
+							</FlexBlock>
 						<FlexItem>
 							<Button
 								icon={plus}
@@ -335,7 +384,7 @@ const actions = useMemo<Action<FrappeResource>[]>(() => {
 								onClick={() => setShowCreate(true)}
 								disabled={!definition}
 							>
-								Add {(definition?.label ?? selectedShell.label).replace(/s$/, '')}
+								Add {selectedShell.label.replace(/s$/, '')}
 							</Button>
 						</FlexItem>
 					</Flex>
@@ -344,7 +393,7 @@ const actions = useMemo<Action<FrappeResource>[]>(() => {
 					{Boolean(definitionError) && (
 						<Notice status="error" isDismissible={false}>
 							<strong>Couldn’t load {selectedShell.label.toLowerCase()} metadata.</strong>{' '}
-							{definitionError}{' '}
+							{errorMessage(definitionError)}{' '}
 							<Button variant="link" onClick={() => setShowConnection(true)}>
 								Reconnect to Frappe
 							</Button>
@@ -370,20 +419,20 @@ const actions = useMemo<Action<FrappeResource>[]>(() => {
 						</Notice>
 					)}
 
-					<section className="frappe-data-card" aria-label={`${(definition?.label ?? selectedShell.label).toLowerCase()} data`}>
+					<section className="frappe-data-card" aria-label={`${selectedShell.label.toLowerCase()} data`}>
 						<DataViews<FrappeResource>
 							view={view}
 							onChangeView={setView}
 							fields={fields}
 							data={processed.data}
 							getItemId={(item) => item.name}
-							isLoading={isResolving || definitionLoading}
+							isLoading={isResolving || isDefinitionResolving}
 							paginationInfo={processed.paginationInfo}
 							selection={selection}
 							onChangeSelection={setSelection}
 							actions={actions}
 							search
-							searchLabel={`Search ${(definition?.label ?? selectedShell.label).toLowerCase()}`}
+							searchLabel={`Search ${selectedShell.label.toLowerCase()}`}
 							defaultLayouts={{
 								table: {},
 								grid: { layout: { density: 'comfortable' } },
@@ -395,7 +444,7 @@ const actions = useMemo<Action<FrappeResource>[]>(() => {
 									<div className="frappe-empty-icon">
 										<Icon icon={plus} size={24} />
 									</div>
-									<h2>No {(definition?.label ?? selectedShell.label).toLowerCase()} found</h2>
+									<h2>No {selectedShell.label.toLowerCase()} found</h2>
 									<p>Create a record or adjust the active filters.</p>
 								</div>
 							}
