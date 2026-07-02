@@ -13,8 +13,19 @@ export default defineConfig(({ mode }) => {
 	return {
 		root,
 		plugins: [react()],
+		resolve: {
+			// The datastore is installed from the parent directory during local
+			// development. Force React-facing imports from that linked package to
+			// use the demo's copies so hooks share one React dispatcher.
+			dedupe: [
+				'react',
+				'react-dom',
+				'@wordpress/data',
+				'@wordpress/element',
+			],
+		},
 		build: {
-			outDir: '../demo-dist',
+			outDir: 'dist',
 			emptyOutDir: true,
 		},
 		server: {

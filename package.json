@@ -18,10 +18,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "demo": "vite --config demo/vite.config.ts",
-    "demo:build": "vite build --config demo/vite.config.ts",
-    "demo:preview": "vite preview --config demo/vite.config.ts",
-    "test": "vitest run",
+    "test": "vitest run --dir tests",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -29,19 +26,9 @@
   },
   "devDependencies": {
     "@types/node": "latest",
-    "@types/react": "^18.3.31",
-    "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^6.0.3",
-    "@wordpress/components": "^36.0.0",
     "@wordpress/data": "latest",
-    "@wordpress/dataviews": "^17.0.0",
-    "@wordpress/element": "^8.1.0",
-    "@wordpress/icons": "^15.0.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "tsup": "latest",
     "typescript": "latest",
-    "vite": "^8.1.0",
     "vitest": "latest"
   },
   "keywords": [

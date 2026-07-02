@@ -1,8 +1,11 @@
-import { createFrappeRequest, loadDocTypeDefinition as loadCoreDocTypeDefinition } from '../../src';
+import {
+	createFrappeRequest,
+	loadDocTypeDefinition as loadCoreDocTypeDefinition,
+} from 'wp-frappe-data-store';
 import type {
 	DocTypeDefinition,
 	ResourceFieldDefinition,
-} from '../../src';
+} from 'wp-frappe-data-store';
 import { getConnectionHeaders } from './auth';
 
 export type DocTypeShell = {

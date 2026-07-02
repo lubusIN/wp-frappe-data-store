@@ -14,11 +14,14 @@ The left sidebar mirrors Frappe CRM's primary data navigation from Leads through
 
 ## Start the demo
 
-From the repository root:
+Build the library, then install and start the independently managed demo:
 
 ```sh
 npm install
-npm run demo
+npm run build
+cd demo
+npm install
+npm run dev
 ```
 
 Then open [http://127.0.0.1:5180](http://127.0.0.1:5180).
@@ -43,7 +46,7 @@ Then update the target:
 VITE_FRAPPE_TARGET=https://my-frappe-site.localhost
 ```
 
-Restart `npm run demo` after changing the fallback. Do not add usernames, passwords, API keys, or API secrets to this file.
+Restart `npm run dev` after changing the fallback. Do not add usernames, passwords, API keys, or API secrets to this file.
 
 ## Provide credentials
 
@@ -123,7 +126,7 @@ The request reached Frappe, but the current user cannot read or modify that DocT
 ### Requests still run as Guest
 
 - Open connection settings and sign in again.
-- Confirm that `npm run demo` is running; the session-cookie flow depends on the Vite proxy.
+- Confirm that `npm run dev` is running in `demo/`; the session-cookie flow depends on the Vite proxy.
 - If using an API token, confirm that both values belong to the same enabled Frappe user.
 - Select **Disconnect**, then reconnect using one authentication method.
 
@@ -137,10 +140,14 @@ Return to Connection settings and enter the complete site origin, including `htt
 
 ## Validate a change
 
-From the repository root:
+Validate the library from the repository root, then the demo from `demo/`:
 
 ```sh
 npm run typecheck
-npm run demo:build
 npm test
+npm run build
+cd demo
+npm run typecheck
+npm test
+npm run build
 ```

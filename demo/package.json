@@ -1,0 +1,32 @@
+{
+  "name": "wp-frappe-data-store-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@wordpress/components": "^36.0.0",
+    "@wordpress/data": "latest",
+    "@wordpress/dataviews": "^17.0.0",
+    "@wordpress/element": "^8.1.0",
+    "@wordpress/icons": "^15.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "wp-frappe-data-store": "file:.."
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.3",
+    "typescript": "latest",
+    "vite": "^8.1.0",
+    "vitest": "latest"
+  }
+}

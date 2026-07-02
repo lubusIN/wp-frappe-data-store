@@ -1,4 +1,4 @@
-import { registerFrappeDataStore } from '../../src';
+import { registerFrappeDataStore } from 'wp-frappe-data-store';
 import { getConnectionHeaders } from './auth';
 
 export const frappeStore = registerFrappeDataStore({

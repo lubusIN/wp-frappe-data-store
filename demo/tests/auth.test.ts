@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeFrappeSiteUrl } from '../demo/src/auth';
+import { normalizeFrappeSiteUrl } from '../src/auth';
 
 describe('demo Frappe site URL', () => {
 	it('normalizes a valid site origin', () => {

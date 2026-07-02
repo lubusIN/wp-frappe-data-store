@@ -8,7 +8,10 @@ This repository includes a standalone WordPress DataViews app connected to Frapp
 
 ```sh
 npm install
-npm run demo
+npm run build
+cd demo
+npm install
+npm run dev
 ```
 
 Open `http://127.0.0.1:5180`, enter the Frappe site URL, then sign in with a password session or API key and secret. The resource desk appears only after the connection is validated.
