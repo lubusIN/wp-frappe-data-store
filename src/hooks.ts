@@ -1,5 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import type {
+	FrappeBoundSelectors,
 	FrappeDataStore,
 	FrappeListQuery,
 	FrappeResource,
@@ -9,19 +10,6 @@ import type {
 } from './types';
 import { getListKey, getResourceKey } from './utils';
 
-type BoundSelectors = {
-	getResource: (doctype: string, name: string) => FrappeResource | undefined;
-	getResourceList: (
-		doctype: string,
-		query?: FrappeListQuery
-	) => FrappeResource[] | undefined;
-	getDocTypeDefinition: (
-		doctype: string
-	) => DocTypeDefinition | undefined;
-	isRequestPending: (requestKey: string) => boolean;
-	getRequestError: (requestKey: string) => unknown;
-};
-
 export function useFrappeResource(
 	store: FrappeDataStore,
 	doctype: string,
@@ -29,7 +17,7 @@ export function useFrappeResource(
 ): { resource: FrappeResource | undefined } & RequestStatus {
 	return useSelect(
 		(select) => {
-			const selectors = select(store) as unknown as BoundSelectors;
+			const selectors = select(store) as unknown as FrappeBoundSelectors;
 			const requestKey = getResourceKey(doctype, name);
 			return {
 				resource: selectors.getResource(doctype, name),
@@ -49,7 +37,7 @@ export function useFrappeResourceList(
 	const queryKey = getListKey(doctype, query);
 	return useSelect(
 		(select) => {
-			const selectors = select(store) as unknown as BoundSelectors;
+			const selectors = select(store) as unknown as FrappeBoundSelectors;
 			const requestKey = `list:${queryKey}`;
 			return {
 				resources: selectors.getResourceList(doctype, query),
@@ -73,7 +61,7 @@ export function useDocTypeDefinition(
 ): { docTypeDefinition: DocTypeDefinition | undefined } {
 	return useSelect(
 		(select) => {
-			const selectors = select(store) as unknown as BoundSelectors;
+			const selectors = select(store) as unknown as FrappeBoundSelectors;
 			return {
 				docTypeDefinition: selectors.getDocTypeDefinition(doctype),
 			};

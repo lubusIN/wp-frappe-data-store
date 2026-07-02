@@ -34,6 +34,17 @@ export function getResourceKey(doctype: string, name: string): string {
 	return `${doctype}:${name}`;
 }
 
+const KNOWN_QUERY_PARAMS = new Set([
+	'fields',
+	'filters',
+	'orFilters',
+	'orderBy',
+	'limitStart',
+	'limit',
+	'groupBy',
+	'distinct',
+]);
+
 export function toFrappeQuery(
 	query: FrappeListQuery = {}
 ): Record<string, string> {
@@ -54,18 +65,8 @@ export function toFrappeQuery(
 	if (query.groupBy) params.group_by = query.groupBy;
 	if (query.distinct !== undefined) params.distinct = query.distinct ? '1' : '0';
 
-	const known = new Set([
-		'fields',
-		'filters',
-		'orFilters',
-		'orderBy',
-		'limitStart',
-		'limit',
-		'groupBy',
-		'distinct',
-	]);
 	for (const [key, value] of Object.entries(query)) {
-		if (!known.has(key) && value !== undefined) {
+		if (!KNOWN_QUERY_PARAMS.has(key) && value !== undefined) {
 			params[key] =
 				typeof value === 'string' ? value : JSON.stringify(value);
 		}

@@ -1,4 +1,8 @@
-import type { FrappeRequest, DocTypeDefinition } from './types';
+import type {
+	DocTypeDefinition,
+	FrappeRequest,
+	ResourceFieldDefinition,
+} from './types';
 
 type FrappeDocTypeFieldMeta = {
 	fieldname: string;
@@ -20,7 +24,15 @@ type FrappeDocTypeMeta = {
 	fields?: FrappeDocTypeFieldMeta[];
 };
 
-type ResourceFieldDefinition = DocTypeDefinition['fields'][number];
+const LAYOUT_ONLY_FIELD_TYPES = new Set([
+	'Section Break',
+	'Column Break',
+	'HTML',
+	'Button',
+	'Fold',
+	'Table',
+	'Table MultiSelect',
+]);
 
 function humanizeFieldName(fieldname: string) {
 	return fieldname
@@ -73,22 +85,12 @@ function parseFieldOptions(fieldtype?: string, options?: string): string[] | und
 function isDisplayableField(field: FrappeDocTypeFieldMeta) {
 	const hidden = Boolean(field.hidden);
 	const fieldtype = field.fieldtype;
-	const layoutOnly = new Set([
-		'Section Break',
-		'Column Break',
-		'HTML',
-		'Button',
-		'Fold',
-		'Table',
-		'Table MultiSelect',
-		'Button',
-	]);
 
 	return (
 		Boolean(field.fieldname) &&
 		!hidden &&
 		fieldtype !== undefined &&
-		!layoutOnly.has(fieldtype)
+		!LAYOUT_ONLY_FIELD_TYPES.has(fieldtype)
 	);
 }
 
@@ -109,7 +111,7 @@ function normalizeField(field: FrappeDocTypeFieldMeta): ResourceFieldDefinition 
 const definitionCache: Record<string, DocTypeDefinition> = {};
 
 export function getCachedDocTypeDefinition(
-doctype: string
+	doctype: string
 ): DocTypeDefinition | undefined {
 	return definitionCache[doctype];
 }

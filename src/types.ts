@@ -84,23 +84,24 @@ type FrappeActionCreators = {
 	invalidateResourceLists: (doctype: string) => { type: string; doctype: string };
 };
 
-type FrappeSelectors = {
-	getResource: (
-		state: unknown,
-		doctype: string,
-		name: string
-	) => FrappeResource | undefined;
+export type FrappeBoundSelectors = {
+	getResource: (doctype: string, name: string) => FrappeResource | undefined;
 	getResourceList: (
-		state: unknown,
 		doctype: string,
 		query?: FrappeListQuery
 	) => FrappeResource[] | undefined;
 	getDocTypeDefinition: (
-		state: unknown,
 		doctype: string
 	) => DocTypeDefinition | undefined;
-	isRequestPending: (state: unknown, requestKey: string) => boolean;
-	getRequestError: (state: unknown, requestKey: string) => unknown;
+	isRequestPending: (requestKey: string) => boolean;
+	getRequestError: (requestKey: string) => unknown;
+};
+
+type FrappeSelectors = {
+	[K in keyof FrappeBoundSelectors]: (
+		state: unknown,
+		...args: Parameters<FrappeBoundSelectors[K]>
+	) => ReturnType<FrappeBoundSelectors[K]>;
 };
 
 export type FrappeDataStore = StoreDescriptor<
