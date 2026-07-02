@@ -1,3 +1,5 @@
+<img src=".github/assets/banner.png" />
+
 # WP Frappe Data Store
 
 A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/) store for reading and mutating Frappe DocType resources from WordPress components.
