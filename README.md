@@ -26,31 +26,126 @@ npm install @lubusin/wp-frappe-data-store @wordpress/data
 
 ## Register a store
 
-Register it once in your plugin application entry point. In production, point `baseUrl` at a same-origin WordPress REST proxy so Frappe credentials remain on the server.
+Register it once in your application entry point. The simplest setup connects directly to Frappe's REST API:
 
 ```js
 import { registerFrappeDataStore } from '@lubusin/wp-frappe-data-store';
 
+const apiKey = 'YOUR_API_KEY';
+const apiSecret = 'YOUR_API_SECRET';
+
+export const frappeStore = registerFrappeDataStore({
+	storeName: 'my-plugin/frappe',
+	baseUrl: 'https://crm.example.com',
+	apiPath: '/api/resource',
+	headers: {
+		Authorization: `token ${apiKey}:${apiSecret}`,
+	},
+});
+```
+
+Frappe must allow requests from the application's origin. Direct access is useful for local development and trusted internal apps, but a browser bundle cannot keep an API secret: anyone who can load the app can inspect its JavaScript and network requests. Use a restricted Frappe user and token, and do not ship privileged credentials this way.
+
+For session-cookie authentication, omit the `Authorization` header and set `credentials: 'include'`. Frappe must then allow the exact frontend origin and credentialed cross-origin requests. The user must already have a valid Frappe session.
+
+## WordPress REST proxy pattern
+
+For a production WordPress plugin, proxy requests through WordPress. The browser authenticates to WordPress, while the Frappe URL and API token remain server-side:
+
+```text
+WordPress UI → /wp-json/my-plugin/v1/frappe/* → Frappe /api/resource/*
+```
+
+Define the Frappe connection in `wp-config.php` or provide the values through another server-side secrets mechanism. Do not store the token in JavaScript or commit it to the plugin:
+
+```php
+define( 'MY_PLUGIN_FRAPPE_URL', 'https://crm.example.com' );
+define( 'MY_PLUGIN_FRAPPE_TOKEN', 'token API_KEY:API_SECRET' );
+```
+
+Register an authenticated proxy route in the plugin. This compact example supports the resource operations used by the datastore:
+
+```php
+add_action(
+	'rest_api_init',
+	function () {
+		register_rest_route(
+			'my-plugin/v1',
+			'/frappe/(?P<path>api/resource(?:/.*)?)',
+			array(
+				'methods'             => array( 'GET', 'POST', 'PUT', 'DELETE' ),
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'callback'            => function ( WP_REST_Request $request ) {
+					$path = ltrim( $request['path'], '/' );
+					$url  = trailingslashit( MY_PLUGIN_FRAPPE_URL ) . $path;
+					$url  = add_query_arg( $request->get_query_params(), $url );
+
+					$response = wp_remote_request(
+						$url,
+						array(
+							'method'  => $request->get_method(),
+							'headers' => array(
+								'Accept'        => 'application/json',
+								'Authorization' => MY_PLUGIN_FRAPPE_TOKEN,
+								'Content-Type'  => 'application/json',
+							),
+							'body'    => $request->get_body(),
+							'timeout' => 20,
+						)
+					);
+
+					if ( is_wp_error( $response ) ) {
+						return new WP_Error(
+							'frappe_unavailable',
+							$response->get_error_message(),
+							array( 'status' => 502 )
+						);
+					}
+
+					$status = wp_remote_retrieve_response_code( $response );
+					$body   = json_decode( wp_remote_retrieve_body( $response ), true );
+
+					return new WP_REST_Response( is_array( $body ) ? $body : array(), $status );
+				},
+			)
+		);
+	}
+);
+```
+
+Choose a capability appropriate to the records exposed by your plugin; `edit_posts` is only an example. Keeping the upstream host in server configuration—and accepting only the fixed `api/resource` path—also prevents clients from turning the endpoint into an open proxy.
+
+Expose a WordPress REST nonce to the plugin script when it is enqueued:
+
+```php
+wp_localize_script(
+	'my-plugin-app',
+	'myPluginSettings',
+	array(
+		'restNonce' => wp_create_nonce( 'wp_rest' ),
+	)
+);
+```
+
+Then configure the datastore exactly as in the direct connection example, changing `baseUrl` to the WordPress proxy and replacing the Frappe token with the WordPress REST nonce:
+
+```js
 export const frappeStore = registerFrappeDataStore({
 	storeName: 'my-plugin/frappe',
 	baseUrl: '/wp-json/my-plugin/v1/frappe',
-	apiPath: '/resource',
+	apiPath: '/api/resource',
+	headers: {
+		'X-WP-Nonce': window.myPluginSettings.restNonce,
+	},
+	credentials: 'same-origin',
 });
 ```
 
-For custom authentication, error handling, or proxy response adaptation, inject a request function:
+The datastore still generates the normal `/api/resource/{doctype}/{name}` paths. The only difference is that they are sent to `/wp-json/my-plugin/v1/frappe` first, where WordPress authenticates the user and forwards them to Frappe. The proxy deliberately preserves Frappe's response body and HTTP status, including the standard `{ data: ... }` payload expected by the datastore.
 
-```js
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
-
-export const frappeStore = registerFrappeDataStore({
-	request: ({ method, path, query, data, signal }) =>
-		apiFetch({ method, path: addQueryArgs(path, query), data, signal }),
-});
-```
-
-The request function must return standard Frappe payloads (`{ data: ... }`).
+For a larger integration, move the route into a `WP_REST_Controller`, add explicit argument schemas, map capabilities per DocType or operation, rate-limit expensive requests, and avoid returning sensitive upstream error details to unauthorized users.
 
 ## Use from a component
 
