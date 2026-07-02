@@ -1,6 +1,6 @@
 # Frappe CRM DataViews demo
 
-This standalone React app demonstrates `wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records. The demo editor form is metadata-driven and can render labels, types, descriptions, and placeholders from the target DocType metadata.
+This standalone React app demonstrates `@lubusin/wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records. The demo editor form is metadata-driven and can render labels, types, descriptions, and placeholders from the target DocType metadata.
 
 The connection screen defaults to `https://frappe.localhost` and accepts another Frappe site origin.
 

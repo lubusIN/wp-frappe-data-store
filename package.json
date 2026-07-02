@@ -1,5 +1,5 @@
 {
-  "name": "wp-frappe-data-store",
+  "name": "@lubusin/wp-frappe-data-store",
   "version": "0.1.0",
   "description": "A @wordpress/data store for querying and mutating Frappe resources.",
   "type": "module",

@@ -21,7 +21,7 @@ See the [complete demo setup and credentials guide](./demo/README.md) for proxy 
 ## Install
 
 ```sh
-npm install wp-frappe-data-store @wordpress/data
+npm install @lubusin/wp-frappe-data-store @wordpress/data
 ```
 
 ## Register a store
@@ -29,7 +29,7 @@ npm install wp-frappe-data-store @wordpress/data
 Register it once in your plugin application entry point. In production, point `baseUrl` at a same-origin WordPress REST proxy so Frappe credentials remain on the server.
 
 ```js
-import { registerFrappeDataStore } from 'wp-frappe-data-store';
+import { registerFrappeDataStore } from '@lubusin/wp-frappe-data-store';
 
 export const frappeStore = registerFrappeDataStore({
 	storeName: 'my-plugin/frappe',
@@ -58,7 +58,7 @@ The request function must return standard Frappe payloads (`{ data: ... }`).
 import {
 	useFrappeResourceActions,
 	useFrappeResourceList,
-} from 'wp-frappe-data-store';
+} from '@lubusin/wp-frappe-data-store';
 import { frappeStore } from './store';
 
 export function OpenTasks() {
@@ -106,7 +106,7 @@ import {
 	loadDocTypeDefinition,
 	useDocTypeDefinition,
 	type DocTypeDefinition,
-} from 'wp-frappe-data-store';
+} from '@lubusin/wp-frappe-data-store';
 
 // Load and cache definition imperatively via request transport:
 const definition = await loadDocTypeDefinition(request, 'CRM Lead');

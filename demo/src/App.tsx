@@ -31,7 +31,7 @@ import {
 	wordpress,
 } from '@wordpress/icons';
 import { useEffect, useMemo, useState } from '@wordpress/element';
-import type { FrappeListQuery, FrappeResource } from 'wp-frappe-data-store';
+import type { FrappeListQuery, FrappeResource } from '@lubusin/wp-frappe-data-store';
 import {
 	createFrappeRequest,
 	getListKey,
@@ -39,7 +39,7 @@ import {
 	useDocTypeDefinition,
 	useFrappeResourceActions,
 	useFrappeResourceList,
-} from 'wp-frappe-data-store';
+} from '@lubusin/wp-frappe-data-store';
 import {
 	getConnectionHeaders,
 	getFrappeSiteUrl,

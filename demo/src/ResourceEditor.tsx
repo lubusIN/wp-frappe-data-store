@@ -6,7 +6,7 @@ import {
 } from '@wordpress/dataviews';
 import { useMemo, useState } from '@wordpress/element';
 import type { FormEvent } from 'react';
-import type { FrappeResource } from 'wp-frappe-data-store';
+import type { FrappeResource } from '@lubusin/wp-frappe-data-store';
 import type { DocTypeDefinition, ResourceFieldDefinition } from './doctypes';
 
 type Props = {
