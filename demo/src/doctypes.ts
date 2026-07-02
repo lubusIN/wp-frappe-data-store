@@ -1,12 +1,7 @@
-import {
-	createFrappeRequest,
-	loadDocTypeDefinition as loadCoreDocTypeDefinition,
-} from '@lubusin/wp-frappe-data-store';
 import type {
 	DocTypeDefinition,
 	ResourceFieldDefinition,
 } from '@lubusin/wp-frappe-data-store';
-import { getConnectionHeaders } from './auth';
 
 export type DocTypeShell = {
 	name: string;
@@ -19,12 +14,6 @@ export type {
 	DocTypeDefinition,
 	ResourceFieldDefinition,
 };
-
-const request = createFrappeRequest({
-	baseUrl: '/frappe-api',
-	headers: getConnectionHeaders,
-	credentials: 'include',
-});
 
 export const DOC_TYPE_SHELLS: DocTypeShell[] = [
 	{
@@ -64,9 +53,3 @@ export const DOC_TYPE_SHELLS: DocTypeShell[] = [
 		icon: 'tasks',
 	},
 ];
-
-export function loadDocTypeDefinition(
-	doctype: string
-): Promise<DocTypeDefinition> {
-	return loadCoreDocTypeDefinition(request, doctype);
-}

@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import type { IncomingMessage } from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { rewriteCookieForLocalHttp } from './proxy';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
 
@@ -55,6 +56,14 @@ export default defineConfig(({ mode }) => {
 					configure: (proxy) => {
 						proxy.on('proxyReq', (proxyRequest) => {
 							proxyRequest.removeHeader(siteUrlHeader);
+						});
+						proxy.on('proxyRes', (proxyResponse) => {
+							const cookies = proxyResponse.headers['set-cookie'];
+							if (cookies) {
+								proxyResponse.headers['set-cookie'] = cookies.map(
+									rewriteCookieForLocalHttp
+								);
+							}
 						});
 					},
 				},

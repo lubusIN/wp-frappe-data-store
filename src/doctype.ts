@@ -43,6 +43,7 @@ function humanizeFieldName(fieldname: string) {
 function mapFieldType(fieldtype?: string): ResourceFieldDefinition['type'] {
 	switch (fieldtype) {
 		case 'Check':
+			return 'checkbox';
 		case 'Currency':
 		case 'Int':
 		case 'Float':
@@ -108,19 +109,10 @@ function normalizeField(field: FrappeDocTypeFieldMeta): ResourceFieldDefinition 
 	};
 }
 
-const definitionCache: Record<string, DocTypeDefinition> = {};
-
-/**
- * Synchronously retrieves a previously cached DocType definition from memory.
- *
- * @param doctype The Frappe DocType name.
- * @returns Cached definition or `undefined` if not yet loaded.
- */
-export function getCachedDocTypeDefinition(
-	doctype: string
-): DocTypeDefinition | undefined {
-	return definitionCache[doctype];
-}
+const definitionCache = new WeakMap<
+	FrappeRequest,
+	Map<string, Promise<DocTypeDefinition>>
+>();
 
 /**
  * Asynchronously fetches, normalizes, and caches field metadata for a given Frappe DocType.
@@ -134,31 +126,43 @@ export async function loadDocTypeDefinition(
 	request: FrappeRequest,
 	doctype: string
 ): Promise<DocTypeDefinition> {
-	const cachedDefinition = definitionCache[doctype];
+	let requestCache = definitionCache.get(request);
+	if (!requestCache) {
+		requestCache = new Map();
+		definitionCache.set(request, requestCache);
+	}
+	const cachedDefinition = requestCache.get(doctype);
 	if (cachedDefinition) {
 		return cachedDefinition;
 	}
 
-	const response = (await request({
-		method: 'GET',
-		path: `/api/resource/DocType/${encodeURIComponent(doctype)}`,
-		query: {
-			fields: JSON.stringify(['name', 'title_field', 'fields']),
-		},
-	})) as { data: FrappeDocTypeMeta };
+	const definitionPromise = (async () => {
+		const response = (await request({
+			method: 'GET',
+			path: `/api/resource/DocType/${encodeURIComponent(doctype)}`,
+			query: {
+				fields: JSON.stringify(['name', 'title_field', 'fields']),
+			},
+		})) as { data: FrappeDocTypeMeta };
 
-	const fields = (response.data.fields ?? [])
-		.filter(isDisplayableField)
-		.map(normalizeField);
+		const fields = (response.data.fields ?? [])
+			.filter(isDisplayableField)
+			.map(normalizeField);
 
-	const titleField = response.data.title_field || fields[0]?.id || 'name';
+		const titleField = response.data.title_field || fields[0]?.id || 'name';
 
-	const definition: DocTypeDefinition = {
-		name: doctype,
-		titleField,
-		fields,
-	};
+		return {
+			name: doctype,
+			titleField,
+			fields,
+		};
+	})();
 
-	definitionCache[doctype] = definition;
-	return definition;
+	requestCache.set(doctype, definitionPromise);
+	try {
+		return await definitionPromise;
+	} catch (error) {
+		requestCache.delete(doctype);
+		throw error;
+	}
 }

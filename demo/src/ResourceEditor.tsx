@@ -8,6 +8,11 @@ import { useMemo, useState } from '@wordpress/element';
 import type { FormEvent } from 'react';
 import type { FrappeResource } from '@lubusin/wp-frappe-data-store';
 import type { DocTypeDefinition, ResourceFieldDefinition } from './doctypes';
+import {
+	findMissingRequiredField,
+	makeInitialValues,
+	makeSubmitPayload,
+} from './resource-editor-utils';
 
 type Props = {
 	definition: DocTypeDefinition;
@@ -24,45 +29,6 @@ function dataFormType(
 	if (field.type === 'datetime') return 'datetime';
 	if (field.type === 'number') return 'number';
 	return 'text';
-}
-
-function normalizeInitialValue(
-	field: ResourceFieldDefinition,
-	value: unknown
-): unknown {
-	if (value === undefined || value === null) {
-		return value;
-	}
-	if (field.type === 'checkbox') {
-		return value === true || value === '1' || value === 1 || value === 'yes';
-	}
-	if (field.type === 'datetime' && typeof value === 'string') {
-		return value.replace(' ', 'T');
-	}
-	if (field.type === 'date' && typeof value === 'string') {
-		return value.split(' ')[0];
-	}
-	if (field.type === 'number' && typeof value === 'string') {
-		const parsed = Number(value);
-		return Number.isNaN(parsed) ? value : parsed;
-	}
-	return value;
-}
-
-function makeInitialValues(
-	definition: DocTypeDefinition,
-	item?: FrappeResource
-): Record<string, unknown> {
-	if (!item) {
-		return {};
-	}
-	return definition.fields.reduce<Record<string, unknown>>((acc, field) => {
-		if (item[field.id] === undefined) {
-			return acc;
-		}
-		acc[field.id] = normalizeInitialValue(field, item[field.id]);
-		return acc;
-	}, {});
 }
 
 function makeDataFormFields(
@@ -106,12 +72,7 @@ export function ResourceEditor({
 
 	async function submit(event: FormEvent) {
 		event.preventDefault();
-		const missingField = definition.fields.find(
-			(field) =>
-				field.required &&
-				!field.readOnly &&
-				(values[field.id] === undefined || values[field.id] === '')
-		);
+		const missingField = findMissingRequiredField(definition, values);
 		if (missingField) {
 			setError(`${missingField.label} is required.`);
 			return;
@@ -120,23 +81,7 @@ export function ResourceEditor({
 		setSaving(true);
 		setError(undefined);
 		try {
-			const baseValues = item?.name && values.name === undefined ? { name: item.name } : {};
-			const entries = Object.entries({ ...baseValues, ...values }).filter(
-				([key]) => !definition.fields.find((f) => f.id === key)?.readOnly
-			);
-			const payload = Object.fromEntries(
-				entries.map(([key, value]) => {
-					const field = definition.fields.find((candidate) => candidate.id === key);
-					if (field?.type === 'datetime' && typeof value === 'string') {
-						return [key, value.replace('T', ' ')];
-					}
-					if (field?.type === 'checkbox') {
-						return [key, value ? 1 : 0];
-					}
-					return [key, value];
-				})
-			);
-			await onSubmit(payload);
+			await onSubmit(makeSubmitPayload(definition, values, item));
 		} catch (submitError) {
 			setError(
 				submitError instanceof Error ? submitError.message : String(submitError)

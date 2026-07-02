@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "coverage": "vitest run --dir tests --coverage --coverage.include='src/**/*.ts' --coverage.thresholds.statements=90 --coverage.thresholds.branches=85 --coverage.thresholds.functions=90 --coverage.thresholds.lines=90",
     "test": "vitest run --dir tests",
     "typecheck": "tsc --noEmit"
   },
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@vitest/coverage-v8": "^4.1.9",
     "@wordpress/data": "latest",
     "tsup": "latest",
     "typescript": "latest",

@@ -88,6 +88,24 @@ describe('Frappe data store', () => {
 		]);
 	});
 
+	it('uses a custom API path and URL-encodes DocTypes and names', async () => {
+		request.mockResolvedValueOnce({ data: { name: 'TASK/001' } });
+		const store = createFrappeDataStore({
+			storeName: `test/custom-${Math.random()}`,
+			request,
+			apiPath: '/custom/resource/',
+		});
+		const registry = createRegistry();
+		registry.register(store);
+
+		await registry.resolveSelect(store).getResource('CRM Task', 'TASK/001');
+
+		expect(request).toHaveBeenCalledWith({
+			method: 'GET',
+			path: '/custom/resource/CRM%20Task/TASK%2F001',
+		});
+	});
+
 	it('exposes request errors without losing the rejection', async () => {
 		const error = new Error('Permission denied');
 		request.mockRejectedValueOnce(error);
@@ -98,6 +116,25 @@ describe('Frappe data store', () => {
 		).rejects.toThrow('Permission denied');
 		expect(registry.select(store).getRequestError('Task:TASK-4')).toBe(error);
 		expect(registry.select(store).isRequestPending('Task:TASK-4')).toBe(false);
+	});
+
+	it.each([
+		['save', 'save:Task:new'],
+		['delete', 'delete:Task:TASK-4'],
+	] as const)('records %s failures without mutating cached data', async (operation, requestKey) => {
+		const error = new Error(`${operation} failed`);
+		request.mockRejectedValueOnce(error);
+		const { store, registry } = setup();
+		const actions = registry.dispatch(store);
+
+		const result =
+			operation === 'save'
+				? actions.saveResource('Task', { subject: 'Will fail' })
+				: actions.deleteResource('Task', 'TASK-4');
+		await expect(result).rejects.toBe(error);
+
+		expect(registry.select(store).getRequestError(requestKey)).toBe(error);
+		expect(registry.select(store).isRequestPending(requestKey)).toBe(false);
 	});
 
 	it('ignores a stale list response after a newer refresh completes', async () => {
@@ -135,6 +172,27 @@ describe('Frappe data store', () => {
 		).toBeUndefined();
 	});
 
+	it('ignores a stale record response after a newer request completes', async () => {
+		let resolveOld!: (value: unknown) => void;
+		let resolveNew!: (value: unknown) => void;
+		request
+			.mockReturnValueOnce(new Promise((resolve) => (resolveOld = resolve)))
+			.mockReturnValueOnce(new Promise((resolve) => (resolveNew = resolve)));
+		const { store, registry } = setup();
+		const actions = registry.dispatch(store);
+
+		const oldRequest = actions.fetchResource('Task', 'TASK-1');
+		const newRequest = actions.fetchResource('Task', 'TASK-1');
+		resolveNew({ data: { name: 'TASK-1', subject: 'New' } });
+		await newRequest;
+		resolveOld({ data: { name: 'TASK-1', subject: 'Old' } });
+		await oldRequest;
+
+		expect(registry.select(store).getResource('Task', 'TASK-1')).toMatchObject({
+			subject: 'New',
+		});
+	});
+
 	it('invalidates cached lists after a mutation', async () => {
 		request
 			.mockResolvedValueOnce({ data: [{ name: 'TASK-1' }] })
@@ -152,6 +210,31 @@ describe('Frappe data store', () => {
 			registry.resolveSelect(store).getResourceList('Task', query)
 		).resolves.toHaveLength(2);
 		expect(request).toHaveBeenCalledTimes(3);
+	});
+
+	it('removes a deleted resource from records and every cached list', async () => {
+		request
+			.mockResolvedValueOnce({ data: [{ name: 'TASK-1' }, { name: 'TASK-2' }] })
+			.mockResolvedValueOnce({ data: [{ name: 'TASK-1' }] })
+			.mockResolvedValueOnce({ message: 'ok' })
+			.mockResolvedValueOnce({ data: [{ name: 'TASK-2' }] })
+			.mockResolvedValueOnce({ data: [] });
+		const { store, registry } = setup();
+		const openQuery = { filters: { status: 'Open' } };
+		const allQuery = { limit: 20 };
+		await registry.resolveSelect(store).getResourceList('Task', openQuery);
+		await registry.resolveSelect(store).getResourceList('Task', allQuery);
+
+		await registry.dispatch(store).deleteResource('Task', 'TASK-1');
+
+		expect(registry.select(store).getResource('Task', 'TASK-1')).toBeUndefined();
+		await expect(
+			registry.resolveSelect(store).getResourceList('Task', openQuery)
+		).resolves.toEqual([{ name: 'TASK-2' }]);
+		await expect(
+			registry.resolveSelect(store).getResourceList('Task', allQuery)
+		).resolves.toEqual([]);
+		expect(request).toHaveBeenCalledTimes(5);
 	});
 
 	it('resolves and caches a DocType definition', async () => {
@@ -203,5 +286,25 @@ describe('Frappe data store', () => {
 			.getDocTypeDefinition('Task');
 		expect(cachedDefinition).toBe(definition);
 		expect(request).toHaveBeenCalledTimes(1);
+	});
+
+	it('exposes DocType resolution failures and allows a retry', async () => {
+		const failure = new Error('Metadata denied');
+		request
+			.mockRejectedValueOnce(failure)
+			.mockResolvedValueOnce({ data: { name: 'Retry DocType', fields: [] } });
+		const { store, registry } = setup();
+
+		await expect(
+			registry.resolveSelect(store).getDocTypeDefinition('Retry DocType')
+		).rejects.toBe(failure);
+		expect(registry.select(store).getRequestError('doctype:Retry DocType')).toBe(
+			failure
+		);
+
+		await expect(
+			registry.dispatch(store).fetchDocTypeDefinition('Retry DocType')
+		).resolves.toMatchObject({ name: 'Retry DocType' });
+		expect(request).toHaveBeenCalledTimes(2);
 	});
 });
