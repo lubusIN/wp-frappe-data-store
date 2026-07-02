@@ -1,10 +1,17 @@
 import type { ReduxStoreConfig, StoreDescriptor } from '@wordpress/data';
 
+/**
+ * Represents a single Frappe document resource.
+ * Must include the unique `name` identifier field.
+ */
 export type FrappeResource = {
 	name: string;
 	[key: string]: unknown;
 };
 
+/**
+ * Normalized metadata definition for a single field within a Frappe DocType.
+ */
 export type ResourceFieldDefinition = {
 	id: string;
 	label: string;
@@ -23,16 +30,26 @@ export type ResourceFieldDefinition = {
 	readOnly?: boolean;
 };
 
+/**
+ * Normalized metadata definition for a Frappe DocType.
+ */
 export type DocTypeDefinition = {
 	name: string;
 	titleField: string;
 	fields: ResourceFieldDefinition[];
 };
 
+/**
+ * Filter tuple used when querying Frappe resource lists.
+ * E.g., `['status', '=', 'Open']`.
+ */
 export type FrappeFilter =
 	| [field: string, operator: string, value: unknown]
 	| [doctype: string, field: string, operator: string, value: unknown];
 
+/**
+ * Parameters for querying a list of Frappe resources.
+ */
 export type FrappeListQuery = {
 	fields?: string[];
 	filters?: FrappeFilter[] | Record<string, unknown>;
@@ -45,6 +62,9 @@ export type FrappeListQuery = {
 	[key: string]: unknown;
 };
 
+/**
+ * Request options passed to a `FrappeRequest` transport function.
+ */
 export type FrappeRequestOptions = {
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE';
 	path: string;
@@ -53,8 +73,14 @@ export type FrappeRequestOptions = {
 	signal?: AbortSignal;
 };
 
+/**
+ * Transport function responsible for making HTTP calls to the Frappe API.
+ */
 export type FrappeRequest = (options: FrappeRequestOptions) => Promise<unknown>;
 
+/**
+ * Configuration options for creating or registering a Frappe data store.
+ */
 export type FrappeStoreConfig = {
 	storeName?: string;
 	baseUrl?: string;
@@ -84,6 +110,9 @@ type FrappeActionCreators = {
 	invalidateResourceLists: (doctype: string) => { type: string; doctype: string };
 };
 
+/**
+ * Bound store selectors as exposed inside React component hooks or registry selections.
+ */
 export type FrappeBoundSelectors = {
 	getResource: (doctype: string, name: string) => FrappeResource | undefined;
 	getResourceList: (
@@ -104,10 +133,16 @@ type FrappeSelectors = {
 	) => ReturnType<FrappeBoundSelectors[K]>;
 };
 
+/**
+ * Descriptor type for the registered Frappe `@wordpress/data` store.
+ */
 export type FrappeDataStore = StoreDescriptor<
 	ReduxStoreConfig<unknown, FrappeActionCreators, FrappeSelectors>
 >;
 
+/**
+ * Bound actions exposed by `useFrappeResourceActions` or registry dispatchers.
+ */
 export type FrappeResourceActions = {
 	fetchResource: (doctype: string, name: string) => Promise<FrappeResource>;
 	fetchResourceList: (
@@ -122,6 +157,9 @@ export type FrappeResourceActions = {
 	invalidateResourceLists: (doctype: string) => void;
 };
 
+/**
+ * Resolution state indicating if a query is loading or encountered an error.
+ */
 export type RequestStatus = {
 	isResolving: boolean;
 	error: unknown;

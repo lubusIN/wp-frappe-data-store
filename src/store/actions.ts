@@ -56,6 +56,9 @@ export function createActions(
 				requestId,
 			};
 		},
+		/**
+		 * Thunk action to asynchronously fetch and store a single document resource by DocType and name.
+		 */
 		fetchResource(doctype: string, name: string) {
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const requestKey = getResourceKey(doctype, name);
@@ -74,6 +77,9 @@ export function createActions(
 				}
 			};
 		},
+		/**
+		 * Thunk action to asynchronously fetch and store a list of document resources matching a query.
+		 */
 		fetchResourceList(doctype: string, query: FrappeListQuery = {}) {
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const listKey = getListKey(doctype, query);
@@ -100,6 +106,10 @@ export function createActions(
 				}
 			};
 		},
+		/**
+		 * Thunk action to create (POST) or update (PUT) a Frappe document resource.
+		 * Automatically invalidates cached lists for that DocType upon success.
+		 */
 		saveResource(
 			doctype: string,
 			values: Partial<FrappeResource> & Record<string, unknown>
@@ -125,6 +135,10 @@ export function createActions(
 				}
 			};
 		},
+		/**
+		 * Thunk action to permanently delete (DELETE) a Frappe document resource by name.
+		 * Automatically removes the record from store state and invalidates cached lists.
+		 */
 		deleteResource(doctype: string, name: string) {
 			return async ({ dispatch }: { dispatch: typeof actions }) => {
 				const requestKey = `delete:${doctype}:${name}`;
@@ -152,6 +166,9 @@ export function createActions(
 		) {
 			return { type: 'REMOVE_RECORD', doctype, name, requestKey, requestId };
 		},
+		/**
+		 * Action creator to invalidate all cached list results for a specific DocType.
+		 */
 		invalidateResourceLists(doctype: string) {
 			return { type: 'INVALIDATE_LISTS', doctype };
 		},

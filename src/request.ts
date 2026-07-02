@@ -12,6 +12,10 @@ type FrappeErrorBody = {
 	_server_messages?: string;
 };
 
+/**
+ * Custom error class thrown when a Frappe HTTP API request fails or returns a non-2xx status code.
+ * Extracts user-readable error messages from Frappe `_server_messages` or `exception` payloads when available.
+ */
 export class FrappeRequestError extends Error {
 	status: number;
 	body: unknown;
@@ -40,6 +44,12 @@ function errorMessage(body: FrappeErrorBody, status: number): string {
 	return `Frappe request failed with status ${status}`;
 }
 
+/**
+ * Creates a default transport function (`FrappeRequest`) using native `fetch` based on store configuration.
+ *
+ * @param config Store configuration providing `baseUrl`, `headers`, and `credentials`.
+ * @returns A transport function accepting request options and returning parsed JSON response bodies.
+ */
 export function createFrappeRequest(config: FrappeStoreConfig): FrappeRequest {
 	const baseUrl = config.baseUrl ?? '';
 	return async (options: FrappeRequestOptions): Promise<unknown> => {

@@ -96,27 +96,36 @@ Calling `getResource` or `getResourceList` through `useSelect` triggers their re
 
 ## DocType metadata
 
-The package provides a read-only DocType metadata selector on the store and a helper for loading that metadata from Frappe.
+The package provides a helper for loading DocType metadata from Frappe and a hook/selector for retrieving cached metadata in React components:
 
 ```js
 import {
-  loadDocTypeDefinition,
-  type DocTypeDefinition,
+	loadDocTypeDefinition,
+	useDocTypeDefinition,
+	type DocTypeDefinition,
 } from 'wp-frappe-data-store';
 
+// Load and cache definition imperatively via request transport:
 const definition = await loadDocTypeDefinition(request, 'CRM Lead');
-console.log(definition.titleField, definition.fields.length);
+
+// Retrieve cached definition reactively inside a component:
+function LeadForm() {
+	const { docTypeDefinition } = useDocTypeDefinition(frappeStore, 'CRM Lead');
+	// ...
+}
 ```
 
 The normalized field metadata is useful for building dynamic editors and list adapters.
 
 ## API
 
-- Selectors: `getResource`, `getResourceList`, `getDocTypeDefinition`, `isRequestPending`, `getRequestError`
-- Actions: `fetchResource`, `fetchResourceList`, `saveResource`, `deleteResource`, `invalidateResourceLists`
-- Hooks: `useFrappeResource`, `useFrappeResourceList`, `useFrappeResourceActions`, `useDocTypeDefinition`
-- Metadata helpers: `loadDocTypeDefinition`
-- Types: `DocTypeDefinition`, `ResourceFieldDefinition`
+- **Store registration & creation**: `registerFrappeDataStore`, `createFrappeDataStore`
+- **Hooks**: `useFrappeResource`, `useFrappeResourceList`, `useFrappeResourceActions`, `useDocTypeDefinition`
+- **Selectors**: `getResource`, `getResourceList`, `getDocTypeDefinition`, `isRequestPending`, `getRequestError`
+- **Actions**: `fetchResource`, `fetchResourceList`, `saveResource`, `deleteResource`, `invalidateResourceLists`
+- **Transport & Errors**: `createFrappeRequest`, `FrappeRequestError`
+- **Utilities & Helpers**: `loadDocTypeDefinition`, `getListKey`, `getResourceKey`, `toFrappeQuery`
+- **TypeScript Types**: `FrappeDataStore`, `FrappeStoreConfig`, `FrappeResource`, `FrappeResourceActions`, `FrappeListQuery`, `FrappeFilter`, `FrappeRequest`, `FrappeRequestOptions`, `FrappeBoundSelectors`, `DocTypeDefinition`, `ResourceFieldDefinition`, `RequestStatus`
 
 List responses are normalized by Frappe's `name` field. When an explicit `fields` list is supplied, the store automatically includes `name`.
 

@@ -1,5 +1,12 @@
 import type { FrappeListQuery } from './types';
 
+/**
+ * Deterministically stringifies any JavaScript value with sorted object keys.
+ * Used to construct consistent cache keys for list queries.
+ *
+ * @param value The value to serialize.
+ * @returns A stable JSON-like string representation.
+ */
 export function stableStringify(value: unknown): string {
 	if (value === undefined) {
 		return 'null';
@@ -23,6 +30,13 @@ export function stableStringify(value: unknown): string {
 	return JSON.stringify(value);
 }
 
+/**
+ * Generates a deterministic cache key for a queried resource list.
+ *
+ * @param doctype The Frappe DocType name.
+ * @param query The list query options.
+ * @returns Combined string key formatted as `doctype:stringify(query)`.
+ */
 export function getListKey(
 	doctype: string,
 	query: FrappeListQuery = {}
@@ -30,6 +44,13 @@ export function getListKey(
 	return `${doctype}:${stableStringify(query)}`;
 }
 
+/**
+ * Generates a deterministic cache key for a single resource document.
+ *
+ * @param doctype The Frappe DocType name.
+ * @param name The unique document name/identifier.
+ * @returns Combined string key formatted as `doctype:name`.
+ */
 export function getResourceKey(doctype: string, name: string): string {
 	return `${doctype}:${name}`;
 }
@@ -45,6 +66,13 @@ const KNOWN_QUERY_PARAMS = new Set([
 	'distinct',
 ]);
 
+/**
+ * Serializes a typed `FrappeListQuery` object into flat string query parameters expected by Frappe REST endpoints.
+ * Automatically ensures `name` is present in requested `fields`.
+ *
+ * @param query Typed query parameters.
+ * @returns Record of string key-value pairs suitable for URL search parameters.
+ */
 export function toFrappeQuery(
 	query: FrappeListQuery = {}
 ): Record<string, string> {
@@ -75,6 +103,13 @@ export function toFrappeQuery(
 	return params;
 }
 
+/**
+ * Joins a base URL string and relative path without producing duplicate or missing forward slashes.
+ *
+ * @param baseUrl The base URL prefix.
+ * @param path The path segment to append.
+ * @returns Combined URL string.
+ */
 export function joinUrl(baseUrl: string, path: string): string {
 	return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }

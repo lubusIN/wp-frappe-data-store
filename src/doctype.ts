@@ -110,12 +110,26 @@ function normalizeField(field: FrappeDocTypeFieldMeta): ResourceFieldDefinition 
 
 const definitionCache: Record<string, DocTypeDefinition> = {};
 
+/**
+ * Synchronously retrieves a previously cached DocType definition from memory.
+ *
+ * @param doctype The Frappe DocType name.
+ * @returns Cached definition or `undefined` if not yet loaded.
+ */
 export function getCachedDocTypeDefinition(
 	doctype: string
 ): DocTypeDefinition | undefined {
 	return definitionCache[doctype];
 }
 
+/**
+ * Asynchronously fetches, normalizes, and caches field metadata for a given Frappe DocType.
+ * Filters out layout breaks/buttons and maps Frappe field types to simple UI widget types (`text`, `select`, `date`, etc.).
+ *
+ * @param request The Frappe request transport function.
+ * @param doctype The Frappe DocType name (e.g., `'Task'`).
+ * @returns Normalized `DocTypeDefinition` containing fields and title field ID.
+ */
 export async function loadDocTypeDefinition(
 	request: FrappeRequest,
 	doctype: string
