@@ -194,33 +194,138 @@ Calling `getResource` or `getResourceList` through `useSelect` triggers their re
 
 ## DocType metadata
 
-The package provides a helper for loading DocType metadata from Frappe and a hook/selector for retrieving cached metadata in React components:
+Frappe stores field definitions in the `DocType` DocType. The package can fetch that definition and normalize it into a smaller, UI-oriented shape suitable for generating forms, table columns, filters, and labels.
 
-```js
-import {
-	loadDocTypeDefinition,
-	useDocTypeDefinition,
-	type DocTypeDefinition,
-} from '@lubusin/wp-frappe-data-store';
+### Use metadata in a component
 
-// Load and cache definition imperatively via request transport:
-const definition = await loadDocTypeDefinition(request, 'CRM Lead');
+Pass the registered store and DocType name to `useDocTypeDefinition`. The hook loads the definition when needed, caches it, and updates the component as the request progresses:
 
-// Retrieve cached definition reactively inside a component:
+```tsx
+import { useDocTypeDefinition } from '@lubusin/wp-frappe-data-store';
+import { frappeStore } from './store';
+
 function LeadForm() {
-	const { docTypeDefinition } = useDocTypeDefinition(frappeStore, 'CRM Lead');
-	// ...
+	const { docTypeDefinition, isResolving, error } =
+		useDocTypeDefinition(frappeStore, 'CRM Lead');
+
+	if (isResolving && !docTypeDefinition) {
+		return <p>Loading fields…</p>;
+	}
+
+	if (error) {
+		return <p>Could not load fields.</p>;
+	}
+
+	if (!docTypeDefinition) {
+		return null;
+	}
+
+	return (
+		<form>
+			{docTypeDefinition.fields.map((field) => (
+				<label key={field.id}>
+					{field.label}
+					<input
+						name={field.id}
+						required={field.required}
+						readOnly={field.readOnly}
+						placeholder={field.placeholder}
+					/>
+				</label>
+			))}
+		</form>
+	);
 }
 ```
 
-The normalized field metadata is useful for building dynamic editors and list adapters.
+The hook uses the connection already configured on `frappeStore`; no second transport setup is needed. Behind the scenes it requests `/api/resource/DocType/{doctype}`. The authenticated Frappe user must have permission to read that DocType definition.
+
+### Normalized result
+
+When loading succeeds, `useDocTypeDefinition` exposes the normalized definition as `docTypeDefinition`:
+
+```tsx
+const { docTypeDefinition, isResolving, error } =
+	useDocTypeDefinition(frappeStore, 'CRM Lead');
+```
+
+Its shape is:
+
+```ts
+type DocTypeDefinition = {
+	name: string;
+	titleField: string;
+	fields: ResourceFieldDefinition[];
+};
+
+type ResourceFieldDefinition = {
+	id: string;
+	label: string;
+	description?: string;
+	placeholder?: string;
+	type?: 'text' | 'textarea' | 'select' | 'checkbox' | 'date' | 'datetime' | 'number';
+	options?: string[];
+	required?: boolean;
+	readOnly?: boolean;
+};
+```
+
+The hook loads this metadata through the configured store and caches it by DocType. During normalization, the package:
+
+- Uses Frappe's `title_field`, falling back to the first visible field and then `name`.
+- Converts Frappe field types into a smaller set of UI-friendly types.
+- Splits newline-delimited `Select` options into an array.
+- Preserves labels, descriptions, placeholders, required state, and read-only state.
+- Excludes hidden fields and layout-only controls such as section breaks, column breaks, buttons, HTML, and child tables.
+- Generates a human-readable label from the field name when Frappe does not provide one.
+
+For example, when the hook receives a Frappe field such as:
+
+```json
+{
+	"fieldname": "lead_name",
+	"label": "Lead name",
+	"fieldtype": "Data",
+	"reqd": 1,
+	"description": "The person or organization entering the pipeline"
+}
+```
+
+it exposes that field in `docTypeDefinition.fields` as:
+
+```json
+{
+	"id": "lead_name",
+	"label": "Lead name",
+	"type": "text",
+	"required": true,
+	"readOnly": false,
+	"description": "The person or organization entering the pipeline"
+}
+```
+
+### Use metadata outside React
+
+The hook is the recommended API for components. If metadata is needed outside React, use the equivalent resolver-backed selector:
+
+```js
+import { resolveSelect } from '@wordpress/data';
+
+const definition = await resolveSelect(frappeStore).getDocTypeDefinition(
+	'CRM Lead'
+);
+```
+
+Both the hook and selector use the registered store's connection and share its resolved definition. Repeated reads of the same DocType use the cached value rather than making another request. Definitions currently remain cached for the lifetime of the page and have no automatic expiry, so reload the page after changing fields in Frappe when live schema changes matter.
+
+The lower-level `loadDocTypeDefinition(request, doctype)` helper is only needed when using the metadata normalizer without a registered `@wordpress/data` store.
 
 ## API
 
 - **Store registration & creation**: `registerFrappeDataStore`, `createFrappeDataStore`
 - **Hooks**: `useFrappeResource`, `useFrappeResourceList`, `useFrappeResourceActions`, `useDocTypeDefinition`
 - **Selectors**: `getResource`, `getResourceList`, `getDocTypeDefinition`, `isRequestPending`, `getRequestError`
-- **Actions**: `fetchResource`, `fetchResourceList`, `saveResource`, `deleteResource`, `invalidateResourceLists`
+- **Actions**: `fetchDocTypeDefinition`, `fetchResource`, `fetchResourceList`, `saveResource`, `deleteResource`, `invalidateResourceLists`
 - **Transport & Errors**: `createFrappeRequest`, `FrappeRequestError`
 - **Utilities & Helpers**: `loadDocTypeDefinition`, `getListKey`, `getResourceKey`, `toFrappeQuery`
 - **TypeScript Types**: `FrappeDataStore`, `FrappeStoreConfig`, `FrappeResource`, `FrappeResourceActions`, `FrappeListQuery`, `FrappeFilter`, `FrappeRequest`, `FrappeRequestOptions`, `FrappeBoundSelectors`, `DocTypeDefinition`, `ResourceFieldDefinition`, `RequestStatus`

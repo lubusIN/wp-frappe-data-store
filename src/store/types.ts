@@ -1,8 +1,9 @@
-import type { FrappeResource } from '../types';
+import type { DocTypeDefinition, FrappeResource } from '../types';
 
 export type State = {
 	records: Record<string, Record<string, FrappeResource>>;
 	lists: Record<string, string[]>;
+	docTypeDefinitions: Record<string, DocTypeDefinition>;
 	deleted: Record<string, boolean>;
 	pending: Record<string, boolean>;
 	errors: Record<string, unknown>;
@@ -15,6 +16,7 @@ export type Action = {
 	doctype?: string;
 	record?: FrappeResource;
 	records?: FrappeResource[];
+	docTypeDefinition?: DocTypeDefinition;
 	listKey?: string;
 	name?: string;
 	error?: unknown;

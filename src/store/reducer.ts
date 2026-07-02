@@ -4,6 +4,7 @@ import type { Action, State } from './types';
 export const DEFAULT_STATE: State = {
 	records: {},
 	lists: {},
+	docTypeDefinitions: {},
 	deleted: {},
 	pending: {},
 	errors: {},
@@ -72,6 +73,16 @@ export function reducer(state: State = DEFAULT_STATE, action: Action): State {
 				pending: { ...state.pending, [action.requestKey!]: false },
 			};
 		}
+		case 'RECEIVE_DOCTYPE_DEFINITION':
+			if (isStaleRequest(state, action)) return state;
+			return {
+				...state,
+				docTypeDefinitions: {
+					...state.docTypeDefinitions,
+					[action.doctype!]: action.docTypeDefinition!,
+				},
+				pending: { ...state.pending, [action.requestKey!]: false },
+			};
 		case 'REMOVE_RECORD': {
 			if (isStaleRequest(state, action)) return state;
 			const doctypeRecords = { ...state.records[action.doctype!] };

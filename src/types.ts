@@ -91,6 +91,9 @@ export type FrappeStoreConfig = {
 };
 
 type FrappeActionCreators = {
+	fetchDocTypeDefinition: (
+		doctype: string
+	) => (context: unknown) => Promise<DocTypeDefinition>;
 	fetchResource: (
 		doctype: string,
 		name: string
@@ -144,6 +147,7 @@ export type FrappeDataStore = StoreDescriptor<
  * Bound actions exposed by `useFrappeResourceActions` or registry dispatchers.
  */
 export type FrappeResourceActions = {
+	fetchDocTypeDefinition: (doctype: string) => Promise<DocTypeDefinition>;
 	fetchResource: (doctype: string, name: string) => Promise<FrappeResource>;
 	fetchResourceList: (
 		doctype: string,

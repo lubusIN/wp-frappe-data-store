@@ -1,8 +1,10 @@
 import type {
+	DocTypeDefinition,
 	FrappeListQuery,
 	FrappeRequest,
 	FrappeResource,
 } from '../types';
+import { loadDocTypeDefinition } from '../doctype';
 import { getListKey, getResourceKey, toFrappeQuery } from '../utils';
 
 function resourcePath(apiPath: string, doctype: string, name?: string): string {
@@ -54,6 +56,43 @@ export function createActions(
 				listKey,
 				requestKey,
 				requestId,
+			};
+		},
+		receiveDocTypeDefinition(
+			doctype: string,
+			docTypeDefinition: DocTypeDefinition,
+			requestKey: string,
+			requestId: number
+		) {
+			return {
+				type: 'RECEIVE_DOCTYPE_DEFINITION',
+				doctype,
+				docTypeDefinition,
+				requestKey,
+				requestId,
+			};
+		},
+		/**
+		 * Loads and stores normalized field metadata for a Frappe DocType.
+		 */
+		fetchDocTypeDefinition(doctype: string) {
+			return async ({ dispatch }: { dispatch: typeof actions }) => {
+				const requestKey = `doctype:${doctype}`;
+				const requestId = nextRequestId();
+				dispatch.startRequest(requestKey, requestId);
+				try {
+					const definition = await loadDocTypeDefinition(request, doctype);
+					dispatch.receiveDocTypeDefinition(
+						doctype,
+						definition,
+						requestKey,
+						requestId
+					);
+					return definition;
+				} catch (error) {
+					dispatch.failRequest(requestKey, error, requestId);
+					throw error;
+				}
 			};
 		},
 		/**

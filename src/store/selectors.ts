@@ -1,4 +1,3 @@
-import { getCachedDocTypeDefinition } from '../doctype';
 import type { FrappeListQuery, FrappeResource } from '../types';
 import { getListKey } from '../utils';
 import type { State } from './types';
@@ -26,8 +25,8 @@ export const selectors = {
 	/**
 	 * Returns normalized metadata (`fields`, `titleField`) for a given DocType if loaded.
 	 */
-	getDocTypeDefinition(_state: State, doctype: string) {
-		return getCachedDocTypeDefinition(doctype);
+	getDocTypeDefinition(state: State, doctype: string) {
+		return state.docTypeDefinitions[doctype];
 	},
 	/**
 	 * Checks whether an asynchronous fetch or mutation request is currently in progress.

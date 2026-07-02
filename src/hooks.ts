@@ -80,21 +80,23 @@ export function useFrappeResourceActions(
 }
 
 /**
- * React hook to retrieve normalized metadata definition (`fields`, `titleField`) for a Frappe DocType from the cache.
+ * React hook to retrieve normalized metadata for a Frappe DocType, loading it through the store resolver when needed.
  *
  * @param store The registered Frappe `@wordpress/data` store descriptor.
  * @param doctype The Frappe DocType name.
- * @returns Object containing `docTypeDefinition` if previously loaded.
+ * @returns The definition and its loading/error state.
  */
 export function useDocTypeDefinition(
 	store: FrappeDataStore,
 	doctype: string
-): { docTypeDefinition: DocTypeDefinition | undefined } {
+): { docTypeDefinition: DocTypeDefinition | undefined } & RequestStatus {
 	return useSelect(
 		(select) => {
 			const selectors = select(store) as unknown as FrappeBoundSelectors;
 			return {
 				docTypeDefinition: selectors.getDocTypeDefinition(doctype),
+				isResolving: selectors.isRequestPending(`doctype:${doctype}`),
+				error: selectors.getRequestError(`doctype:${doctype}`),
 			};
 		},
 		[store, doctype]

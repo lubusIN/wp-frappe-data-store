@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	createFrappeDataStore,
 	getListKey,
-	loadDocTypeDefinition,
 	type FrappeRequest,
 } from '../src';
 
@@ -155,7 +154,7 @@ describe('Frappe data store', () => {
 		expect(request).toHaveBeenCalledTimes(3);
 	});
 
-	it('loads and caches a DocType definition through the helper and exposes it through the selector', async () => {
+	it('resolves and caches a DocType definition', async () => {
 		request.mockResolvedValueOnce({
 			data: {
 				name: 'Task',
@@ -171,7 +170,9 @@ describe('Frappe data store', () => {
 		});
 		const { store, registry } = setup();
 
-		const definition = await loadDocTypeDefinition(request, 'Task');
+		const definition = await registry
+			.resolveSelect(store)
+			.getDocTypeDefinition('Task');
 
 		expect(definition).toEqual({
 			name: 'Task',
@@ -197,7 +198,9 @@ describe('Frappe data store', () => {
 		});
 
 		expect(registry.select(store).getDocTypeDefinition('Task')).toBe(definition);
-		const cachedDefinition = await loadDocTypeDefinition(request, 'Task');
+		const cachedDefinition = await registry
+			.resolveSelect(store)
+			.getDocTypeDefinition('Task');
 		expect(cachedDefinition).toBe(definition);
 		expect(request).toHaveBeenCalledTimes(1);
 	});

@@ -4,6 +4,12 @@ import type { Actions } from './actions';
 import type { Action, State } from './types';
 
 export function createResolvers(actions: Actions) {
+	const getDocTypeDefinitionResolver = (doctype: string) =>
+		async ({ dispatch }: { dispatch: Actions }) =>
+			dispatch.fetchDocTypeDefinition(doctype);
+	getDocTypeDefinitionResolver.isFulfilled = (state: State, doctype: string) =>
+		state.docTypeDefinitions[doctype] !== undefined;
+
 	const getResourceResolver = (doctype: string, name: string) =>
 		async ({ dispatch }: { dispatch: Actions }) =>
 			dispatch.fetchResource(doctype, name);
@@ -33,6 +39,7 @@ export function createResolvers(actions: Actions) {
 	) => state.lists[getListKey(doctype, query)] !== undefined;
 
 	return {
+		getDocTypeDefinition: getDocTypeDefinitionResolver,
 		getResource: getResourceResolver,
 		getResourceList: getResourceListResolver,
 	};

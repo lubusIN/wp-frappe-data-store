@@ -33,18 +33,12 @@ import {
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import type { FrappeListQuery, FrappeResource } from '@lubusin/wp-frappe-data-store';
 import {
-	createFrappeRequest,
 	getListKey,
-	loadDocTypeDefinition,
 	useDocTypeDefinition,
 	useFrappeResourceActions,
 	useFrappeResourceList,
 } from '@lubusin/wp-frappe-data-store';
-import {
-	getConnectionHeaders,
-	getFrappeSiteUrl,
-	validateFrappeConnection,
-} from './auth';
+import { getFrappeSiteUrl, validateFrappeConnection } from './auth';
 import { ConnectionScreen } from './ConnectionScreen';
 import { ConnectionModal } from './ConnectionModal';
 import {
@@ -118,12 +112,11 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	const [selectedShell, setSelectedShell] = useState<DocTypeShell>(
 		DOC_TYPE_SHELLS[0]!
 	);
-	const { docTypeDefinition: definition } = useDocTypeDefinition(
-		frappeStore,
-		selectedShell.name
-	);
-	const [isDefinitionResolving, setDefinitionResolving] = useState(false);
-	const [definitionError, setDefinitionError] = useState<unknown>();
+	const {
+		docTypeDefinition: definition,
+		isResolving: isDefinitionResolving,
+		error: definitionError,
+	} = useDocTypeDefinition(frappeStore, selectedShell.name);
 	const [view, setView] = useState<View>(() => initialView());
 	const [selection, setSelection] = useState<string[]>([]);
 	const [showConnection, setShowConnection] = useState(false);
@@ -132,42 +125,11 @@ function ResourceDesk({ onDisconnected }: { onDisconnected: () => void }) {
 	const [actionError, setActionError] = useState<string>();
 	const [isDeleting, setDeleting] = useState(false);
 	const [visibleResources, setVisibleResources] = useState<FrappeResource[] | undefined>();
-	const metadataRequest = useMemo(
-		() =>
-			createFrappeRequest({
-				baseUrl: '/frappe-api',
-				headers: getConnectionHeaders,
-				credentials: 'include',
-			}),
-		[]
-	);
 	const [pendingDeletion, setPendingDeletion] = useState<{
 		items: FrappeResource[];
 		doctype: string;
 		onActionPerformed?: (items: FrappeResource[]) => void;
 	}>();
-
-	useEffect(() => {
-		let isMounted = true;
-		setDefinitionResolving(true);
-		setDefinitionError(undefined);
-
-		loadDocTypeDefinition(metadataRequest, selectedShell.name)
-			.catch((error) => {
-				if (isMounted) {
-					setDefinitionError(error);
-				}
-			})
-			.finally(() => {
-				if (isMounted) {
-					setDefinitionResolving(false);
-				}
-			});
-
-		return () => {
-			isMounted = false;
-		};
-	}, [metadataRequest, selectedShell.name]);
 
 	useEffect(() => {
 		if (definition) {
