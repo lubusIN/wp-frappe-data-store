@@ -28,7 +28,7 @@ function createStorage(): Storage {
 	};
 }
 
-describe('demo Frappe site URL', () => {
+describe('sample-app Frappe site URL', () => {
 	beforeEach(() => {
 		vi.stubGlobal('sessionStorage', createStorage());
 		vi.stubGlobal('window', {

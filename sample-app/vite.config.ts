@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			// The datastore is installed from the parent directory during local
 			// development. Force React-facing imports from that linked package to
-			// use the demo's copies so hooks share one React dispatcher.
+			// use the sample-app's copies so hooks share one React dispatcher.
 			dedupe: [
 				'react',
 				'react-dom',

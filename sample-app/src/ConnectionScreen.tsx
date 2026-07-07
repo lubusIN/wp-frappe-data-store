@@ -14,7 +14,7 @@ export function ConnectionScreen(props: Props) {
 					<Icon icon={wordpress} size={40} />
 					<div>
 						<strong>WP Frappe</strong>
-						<span>CRM DataViews demo</span>
+						<span>CRM DataViews sample app</span>
 					</div>
 				</div>
 				{props.isChecking ? (

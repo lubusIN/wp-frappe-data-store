@@ -1,5 +1,5 @@
-const TOKEN_KEY = 'wp-frappe-demo-token';
-const SITE_URL_KEY = 'wp-frappe-demo-site-url';
+const TOKEN_KEY = 'wp-frappe-sample-app-token';
+const SITE_URL_KEY = 'wp-frappe-sample-app-site-url';
 const DEFAULT_SITE_URL = 'https://frappe.localhost';
 export const SITE_URL_HEADER = 'X-Frappe-Site-URL';
 const CONNECTION_TIMEOUT_MS = 8000;

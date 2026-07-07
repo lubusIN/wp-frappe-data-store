@@ -4,21 +4,21 @@
 
 A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/) store for reading and mutating Frappe DocType resources from WordPress components.
 
-## Standalone DataViews demo
+## Standalone DataViews sample app
 
-This repository includes a standalone WordPress DataViews app connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes. The demo also loads DocType metadata dynamically from Frappe, so record forms can surface field descriptions and placeholders when available.
+This repository includes a standalone WordPress DataViews sample app connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes. The sample app also loads DocType metadata dynamically from Frappe, so record forms can surface field descriptions and placeholders when available.
 
 ```sh
 npm install
 npm run build
-cd demo
+cd sample-app
 npm install
 npm run dev
 ```
 
 Open `http://127.0.0.1:5180`, enter the Frappe site URL, then sign in with a password session or API key and secret. The resource desk appears only after the connection is validated.
 
-See the [complete demo setup and credentials guide](./demo/README.md) for proxy configuration, permissions, security notes, and troubleshooting.
+See the [complete sample-app setup and credentials guide](./sample-app/README.md) for proxy configuration, permissions, security notes, and troubleshooting.
 
 ## Install
 

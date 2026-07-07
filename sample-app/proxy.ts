@@ -1,5 +1,5 @@
 /**
- * Rewrites HTTPS-only Frappe cookies for the demo's local HTTP origin.
+ * Rewrites HTTPS-only Frappe cookies for the sample-app's local HTTP origin.
  * This is development-only; production proxies should preserve secure cookies.
  */
 export function rewriteCookieForLocalHttp(cookie: string): string {

@@ -1,6 +1,6 @@
-# Frappe CRM DataViews demo
+# Frappe CRM DataViews sample app
 
-This standalone React app demonstrates `@lubusin/wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records. The demo editor form is metadata-driven and can render labels, types, descriptions, and placeholders from the target DocType metadata.
+This standalone React app demonstrates `@lubusin/wp-frappe-data-store` in a WordPress/FSE-style application shell. It uses WordPress [`DataViews`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/) for resource lists and `DataForm` for record editing. It connects to Frappe CRM and can browse, search, filter, create, edit, bulk-select, and delete its core records. The sample app editor form is metadata-driven and can render labels, types, descriptions, and placeholders from the target DocType metadata.
 
 The connection screen defaults to `https://frappe.localhost` and accepts another Frappe site origin.
 
@@ -12,21 +12,21 @@ The connection screen defaults to `https://frappe.localhost` and accepts another
 
 The left sidebar mirrors Frappe CRM's primary data navigation from Leads through Tasks. It maps to `CRM Lead`, `CRM Deal`, `Contact`, `CRM Organization`, `FCRM Note`, and `CRM Task`. CRM Tasks and Notes expose `reference_doctype` and `reference_docname` so they can be linked to leads, deals, contacts, or organizations.
 
-## Start the demo
+## Start the sample app
 
-Build the library, then install and start the independently managed demo:
+Build the library, then install and start the independently managed sample app:
 
 ```sh
 npm install
 npm run build
-cd demo
+cd sample-app
 npm install
 npm run dev
 ```
 
 Then open [http://127.0.0.1:5180](http://127.0.0.1:5180).
 
-The demo intentionally uses port `5180` because the Frappe Local desktop app may already use Vite's default port `5173`.
+The sample app intentionally uses port `5180` because the Frappe Local desktop app may already use Vite's default port `5173`.
 
 The Vite development server proxies `/frappe-api/*` to the site selected on the connection screen. This avoids browser CORS restrictions and accepts locally generated HTTPS certificates. The browser never connects directly to the Frappe origin.
 
@@ -37,7 +37,7 @@ Enter the desired site origin on the connection screen, for example `https://crm
 To change the prefilled fallback, copy the example environment file:
 
 ```sh
-cp demo/.env.example demo/.env.local
+cp sample-app/.env.example sample-app/.env.local
 ```
 
 Then update the target:
@@ -50,7 +50,7 @@ Restart `npm run dev` after changing the fallback. Do not add usernames, passwor
 
 ## Provide credentials
 
-On startup, the demo validates the saved session or API token. If it is missing or invalid, the resource shell stays hidden and a connection screen requests the Frappe site URL and credentials. The connection screen supports two authentication methods.
+On startup, the sample app validates the saved session or API token. If it is missing or invalid, the resource shell stays hidden and a connection screen requests the Frappe site URL and credentials. The connection screen supports two authentication methods.
 
 ### Password session
 
@@ -68,19 +68,19 @@ Use this option when developing locally with an interactive Frappe account.
 First create an API key and secret in Frappe:
 
 1. Sign in to the Frappe Desk.
-2. Open the **User** record that the demo should use.
+2. Open the **User** record that the sample app should use.
 3. Find the **API Access** section.
 4. Select **Generate Keys**.
 5. Copy the API key and the generated API secret. Frappe normally shows the secret only once.
 
-Then return to the demo:
+Then return to the sample app:
 
 1. Enter the Frappe site URL.
 2. Select **API token**.
 3. Paste the API key and API secret.
 4. Select **Connect**.
 
-The demo sends the standard Frappe header:
+The sample app sends the standard Frappe header:
 
 ```text
 Authorization: token API_KEY:API_SECRET
@@ -101,7 +101,7 @@ Authentication does not bypass Frappe permissions. The selected user needs these
 
 Grant these through the normal Frappe Role Permission Manager and assign the relevant CRM roles to the user. A user may be able to browse Leads while receiving a permission error for Tasks if their CRM permissions differ.
 
-## Using the demo
+## Using the sample app
 
 - Choose a DocType from the left sidebar.
 - Use the DataViews toolbar to search, filter, sort, paginate, change columns, or switch between table, list, and grid layouts.
@@ -109,9 +109,9 @@ Grant these through the normal Frappe Role Permission Manager and assign the rel
 - Select **Add _DocType_** to create a record.
 - Use a row's action menu to edit or delete it.
 - Select several rows to perform bulk deletion.
-- Select **Refresh** after making changes outside the demo.
+- Select **Refresh** after making changes outside the sample app.
 
-The demo requests at most 100 records per DocType and then applies DataViews filtering, sorting, and pagination in the browser. It is intended as a development example, not as an unbounded production listing.
+The sample app requests at most 100 records per DocType and then applies DataViews filtering, sorting, and pagination in the browser. It is intended as a development example, not as an unbounded production listing.
 
 ## Production note
 
@@ -126,7 +126,7 @@ The request reached Frappe, but the current user cannot read or modify that DocT
 ### Requests still run as Guest
 
 - Open connection settings and sign in again.
-- Confirm that `npm run dev` is running in `demo/`; the session-cookie flow depends on the Vite proxy.
+- Confirm that `npm run dev` is running in `sample-app/`; the session-cookie flow depends on the Vite proxy.
 - If using an API token, confirm that both values belong to the same enabled Frappe user.
 - Select **Disconnect**, then reconnect using one authentication method.
 
@@ -140,13 +140,13 @@ Return to Connection settings and enter the complete site origin, including `htt
 
 ## Validate a change
 
-Validate the library from the repository root, then the demo from `demo/`:
+Validate the library from the repository root, then the sample app from `sample-app/`:
 
 ```sh
 npm run typecheck
 npm test
 npm run build
-cd demo
+cd sample-app
 npm run typecheck
 npm test
 npm run build
