@@ -1,0 +1,17 @@
+{
+  "name": "@wp-frappe-data-store/init",
+  "version": "0.1.0",
+  "private": true,
+  "module": "./build-module/index.mjs",
+  "types": "./src/index.ts",
+  "wpScriptModule": true,
+  "wpScriptModuleExports": {
+    ".": "./build-module/index.mjs"
+  },
+  "dependencies": {
+    "@wordpress/boot": "latest",
+    "@wordpress/data": "latest",
+    "@wordpress/i18n": "latest",
+    "@wordpress/icons": "^15.0.0"
+  }
+}

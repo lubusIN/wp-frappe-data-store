@@ -1,0 +1,12 @@
+{
+  "name": "@wp-frappe-data-store/route-tasks",
+  "version": "0.1.0",
+  "private": true,
+  "route": {
+    "path": "/tasks",
+    "page": "frappe-data-store"
+  },
+  "dependencies": {
+    "@wp-frappe-data-store/common": "file:../../packages/common"
+  }
+}

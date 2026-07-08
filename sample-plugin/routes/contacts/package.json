@@ -1,0 +1,12 @@
+{
+  "name": "@wp-frappe-data-store/route-contacts",
+  "version": "0.1.0",
+  "private": true,
+  "route": {
+    "path": "/contacts",
+    "page": "frappe-data-store"
+  },
+  "dependencies": {
+    "@wp-frappe-data-store/common": "file:../../packages/common"
+  }
+}

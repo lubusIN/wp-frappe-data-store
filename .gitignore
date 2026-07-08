@@ -150,3 +150,9 @@ sample-app-dist/
 
 # Local browser verification artifacts
 output/playwright/
+
+# WordPress sample-plugin build artifacts
+sample-plugin/build/
+sample-plugin/**/build/
+sample-plugin/**/build-module/
+sample-plugin/**/build-style/
