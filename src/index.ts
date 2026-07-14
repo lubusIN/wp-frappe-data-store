@@ -12,6 +12,7 @@ export { createFrappeRequest, FrappeRequestError } from './request';
 export { getListKey, getResourceKey, toFrappeQuery } from './utils';
 export { loadDocTypeDefinition } from './doctype';
 export type {
+	FrappeActionCreators,
 	FrappeBoundSelectors,
 	FrappeDataStore,
 	FrappeFilter,
@@ -20,6 +21,7 @@ export type {
 	FrappeRequestOptions,
 	FrappeResource,
 	FrappeResourceActions,
+	FrappeSelectors,
 	FrappeStoreConfig,
 	RequestStatus,
 	ResourceFieldDefinition,

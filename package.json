@@ -19,6 +19,13 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "docs:generate": "typedoc",
+    "docs:dev": "npm run docs:generate && vitepress dev docs",
+    "docs:build": "npm run docs:generate && vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "dev:app": "npm run build && cd ../wpui-frappe-app-starter && npm run dev",
+    "playground": "npm run build && cd ../wpui-frappe-plugin-starter && npm run build && npm run playground",
+    "link:starters": "npm link && cd ../wpui-frappe-app-starter && npm link @lubusin/wp-frappe-data-store && cd ../wpui-frappe-plugin-starter && npm link @lubusin/wp-frappe-data-store",
     "coverage": "vitest run --dir tests --coverage --coverage.include='src/**/*.ts' --coverage.thresholds.statements=90 --coverage.thresholds.branches=85 --coverage.thresholds.functions=90 --coverage.thresholds.lines=90",
     "test": "vitest run --dir tests",
     "typecheck": "tsc --noEmit"
@@ -31,7 +38,10 @@
     "@vitest/coverage-v8": "^4.1.9",
     "@wordpress/data": "latest",
     "tsup": "latest",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0",
     "typescript": "latest",
+    "vitepress": "^1.6.4",
     "vitest": "latest"
   },
   "keywords": [

@@ -90,7 +90,7 @@ export type FrappeStoreConfig = {
 	credentials?: RequestCredentials;
 };
 
-type FrappeActionCreators = {
+export type FrappeActionCreators = {
 	fetchDocTypeDefinition: (
 		doctype: string
 	) => (context: unknown) => Promise<DocTypeDefinition>;
@@ -129,7 +129,7 @@ export type FrappeBoundSelectors = {
 	getRequestError: (requestKey: string) => unknown;
 };
 
-type FrappeSelectors = {
+export type FrappeSelectors = {
 	[K in keyof FrappeBoundSelectors]: (
 		state: unknown,
 		...args: Parameters<FrappeBoundSelectors[K]>

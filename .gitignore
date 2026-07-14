@@ -147,3 +147,7 @@ vite.config.ts.timestamp-*
 
 # Local browser verification artifacts
 output
+
+# VitePress build artifacts
+.vitepress/dist/
+.vitepress/cache/
