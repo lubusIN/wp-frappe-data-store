@@ -145,10 +145,5 @@ vite.config.ts.timestamp-*
 # macOS
 .DS_Store
 
-# Standalone sample-app build
-sample-app-dist/
-
 # Local browser verification artifacts
-output/playwright/
-
-
+output

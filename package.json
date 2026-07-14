@@ -19,9 +19,6 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "build:plugin": "npm run build && cd ../wpui-frappe-plugin-starter && npm run build",
-    "dev": "cd ../wpui-frappe-plugin-starter && npm run dev",
-    "playground": "cd ../wpui-frappe-plugin-starter && npm run playground",
     "coverage": "vitest run --dir tests --coverage --coverage.include='src/**/*.ts' --coverage.thresholds.statements=90 --coverage.thresholds.branches=85 --coverage.thresholds.functions=90 --coverage.thresholds.lines=90",
     "test": "vitest run --dir tests",
     "typecheck": "tsc --noEmit"

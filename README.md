@@ -15,21 +15,11 @@ It features:
 
 See the [WPUI Frappe Plugin Starter Documentation](../wpui-frappe-plugin-starter/README.md) for full architectural details and setup instructions.
 
-## Standalone DataViews sample app
+## Standalone DataViews App Starter Template (`wpui-frappe-app-starter`)
 
-This repository also includes a standalone WordPress DataViews sample app connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes. The sample app also loads DocType metadata dynamically from Frappe, so record forms can surface field descriptions and placeholders when available.
+We provide a complete, standalone **WordPress DataViews App Starter Template** ([`wpui-frappe-app-starter`](../wpui-frappe-app-starter)) connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes. The app also loads DocType metadata dynamically from Frappe, so record forms can surface field descriptions and placeholders when available.
 
-```sh
-npm install
-npm run build
-cd sample-app
-npm install
-npm run dev
-```
-
-Open `http://127.0.0.1:5180`, enter the Frappe site URL, then sign in with a password session or API key and secret. The resource desk appears only after the connection is validated.
-
-See the [complete sample-app setup and credentials guide](./sample-app/README.md) for proxy configuration, permissions, security notes, and troubleshooting.
+See the [WPUI Frappe App Starter Documentation](../wpui-frappe-app-starter/README.md) for full architectural details and setup instructions.
 
 ## Install
 
