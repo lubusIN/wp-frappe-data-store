@@ -4,16 +4,16 @@
 
 A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/) store for reading and mutating Frappe DocType resources from WordPress components.
 
-## WordPress Plugin Integration Sample (`sample-plugin`)
+## WordPress Plugin Starter Template (`wpui-frappe-plugin-starter`)
 
-This repository includes a complete, production-ready **WordPress Plugin** (`sample-plugin/`) demonstrating how to integrate `@lubusin/wp-frappe-data-store` directly into WordPress admin!
+We provide a complete, production-ready standalone **WordPress Plugin Starter Template** ([`wpui-frappe-plugin-starter`](../wpui-frappe-plugin-starter)) demonstrating how to integrate `@lubusin/wp-frappe-data-store` directly into WordPress admin!
 It features:
 - **Full-Screen Admin Interface**: Built with **`@wordpress/boot`** for native WordPress sidebar navigation across CRM entities.
 - **Next-Generation Build Architecture**: Packaged and bundled using **`@wordpress/build`** with npm workspaces (`packages/*` and `routes/*`).
 - **Server-Side REST Proxy**: Proxies cross-origin API calls to Frappe through a custom WordPress REST API endpoint (`/wp-json/frappe-data-store/v1/proxy`) using `wp_remote_request()` to prevent browser CORS restrictions.
 - **Zero-Config WordPress Playground**: Easily test locally without installing Docker, MySQL, or PHP! Just run `npm run playground` from the root directory to boot an instant WordPress Playground instance with the plugin pre-activated.
 
-See the [Sample Plugin Documentation](./sample-plugin/README.md) for full architectural details and setup instructions.
+See the [WPUI Frappe Plugin Starter Documentation](../wpui-frappe-plugin-starter/README.md) for full architectural details and setup instructions.
 
 ## Standalone DataViews sample app
 
