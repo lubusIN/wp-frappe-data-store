@@ -8,21 +8,21 @@ Fetches and subscribes to a list of records for a specific DocType.
 
 ```tsx
 import { useFrappeResourceList } from '@lubusin/wp-frappe-data-store';
+import { frappeStore } from './store';
 
 function LeadsTable() {
-  const { records, isResolving, error, refetch } = useFrappeResourceList('CRM Lead', {
+  const { resources, isResolving, error } = useFrappeResourceList(frappeStore, 'CRM Lead', {
     fields: ['name', 'lead_name', 'email_id', 'status'],
     filters: [['status', '=', 'Open']],
-    order_by: 'creation desc',
-    limit_page_length: 50
+    orderBy: 'creation desc',
+    limit: 50,
   });
 
-  if (isResolving && !records) return <div>Loading...</div>;
+  if (isResolving && !resources) return <div>Loading...</div>;
   if (error) return <div>Error fetching leads</div>;
 
   return (
     <div>
-      <button onClick={refetch}>Refresh</button>
       <table>
         <thead>
           <tr>
@@ -33,7 +33,7 @@ function LeadsTable() {
           </tr>
         </thead>
         <tbody>
-          {records?.map((lead) => (
+          {resources?.map((lead) => (
             <tr key={lead.name}>
               <td>{lead.name}</td>
               <td>{lead.lead_name}</td>
@@ -54,18 +54,19 @@ Fetches a single document by its DocType and unique `name` (ID).
 
 ```tsx
 import { useFrappeResource } from '@lubusin/wp-frappe-data-store';
+import { frappeStore } from './store';
 
 function LeadDetails({ leadId }: { leadId: string }) {
-  const { record, isResolving, error } = useFrappeResource('CRM Lead', leadId);
+  const { resource, isResolving, error } = useFrappeResource(frappeStore, 'CRM Lead', leadId);
 
-  if (isResolving) return <div>Loading...</div>;
-  if (!record) return <div>Not found</div>;
+  if (isResolving && !resource) return <div>Loading...</div>;
+  if (!resource) return <div>Not found</div>;
 
   return (
     <div>
-      <h2>{record.lead_name}</h2>
-      <p>Email: {record.email_id}</p>
-      <p>Mobile: {record.mobile_no}</p>
+      <h2>{resource.lead_name}</h2>
+      <p>Email: {resource.email_id}</p>
+      <p>Mobile: {resource.mobile_no}</p>
     </div>
   );
 }
@@ -77,16 +78,17 @@ Provides action creators to mutate (save, update, delete) records and invalidate
 
 ```tsx
 import { useFrappeResourceActions } from '@lubusin/wp-frappe-data-store';
+import { frappeStore } from './store';
 
 function CreateLeadButton() {
-  const { saveResource, invalidateResourceLists } = useFrappeResourceActions();
+  const { saveResource, invalidateResourceLists } = useFrappeResourceActions(frappeStore);
 
   const handleCreate = async () => {
     try {
       await saveResource('CRM Lead', {
         lead_name: 'New Prospective Client',
         email_id: 'client@example.com',
-        status: 'Open'
+        status: 'Open',
       });
       // Invalidate list caches so any active useFrappeResourceList hooks re-fetch
       invalidateResourceLists('CRM Lead');

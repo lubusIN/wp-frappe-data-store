@@ -30,19 +30,20 @@ When building modern WordPress interfaces (DataViews, Gutenberg blocks, custom a
 
 ```tsx
 import { useFrappeResourceList } from '@lubusin/wp-frappe-data-store';
+import { frappeStore } from './store';
 
 export function CRMDealsList() {
-  const { records, isResolving, error } = useFrappeResourceList('CRM Deal', {
+  const { resources, isResolving, error } = useFrappeResourceList(frappeStore, 'CRM Deal', {
     fields: ['name', 'deal_name', 'status', 'deal_value'],
-    limit_page_length: 20
+    limit: 20,
   });
 
-  if (isResolving && !records) return <p>Loading Deals...</p>;
+  if (isResolving && !resources) return <p>Loading Deals...</p>;
   if (error) return <p>Error loading deals.</p>;
 
   return (
     <ul>
-      {records?.map((deal) => (
+      {resources?.map((deal) => (
         <li key={deal.name}>{deal.deal_name} (${deal.deal_value})</li>
       ))}
     </ul>

@@ -23,6 +23,7 @@ export default defineConfig({
         target: 'https://frappe.localhost',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => path.replace(/^\/api\/frappe-proxy/, ''),
         configure: (proxy, _options) => {
           proxy.on('proxyReq', (proxyReq, req) => {
             const targetSiteUrl = req.headers['x-frappe-site-url'];
@@ -50,22 +51,17 @@ export default defineConfig({
 });
 ```
 
-With this configured, point your store's `getRequestUrl` option to `/api/frappe-proxy` during local development:
+With this configured, point your store's `baseUrl` option to `/api/frappe-proxy` during local development:
 
 ```ts
+import { registerFrappeDataStore } from '@lubusin/wp-frappe-data-store';
+
 registerFrappeDataStore({
   storeName: 'my-app/frappe',
-  siteUrl: () => 'https://myfrappe.localhost',
-  getRequestUrl: (path) => {
-    if (import.meta.env.DEV) {
-      return `/api/frappe-proxy?path=${encodeURIComponent(path)}`;
-    }
-    return `https://myfrappe.localhost${path}`;
-  }
+  baseUrl: import.meta.env.DEV ? '/api/frappe-proxy' : 'https://myfrappe.localhost',
+  credentials: 'include',
 });
 ```
-
----
 
 ## WordPress Server-Side REST Proxy Pattern
 

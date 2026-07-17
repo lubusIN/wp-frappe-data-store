@@ -1,161 +1,55 @@
+<p align="center"><img width="180" src=".github/assets/logo.svg"></p>
+
+
 <img src=".github/assets/banner.png" />
 
 # WP Frappe Data Store
 
-A reusable [`@wordpress/data`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/) store for reading and mutating Frappe DocType resources from WordPress components.
+A reactive [`@wordpress/data`](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/) store and React hooks library for reading, querying, and mutating Frappe DocType resources (**Frappe Framework** & **Frappe CRM**) from WordPress and React applications.
 
-## WordPress Plugin Starter Template (`wpui-frappe-plugin-starter`)
 
-We provide a complete, production-ready standalone **WordPress Plugin Starter Template** ([`wpui-frappe-plugin-starter`](../wpui-frappe-plugin-starter)) demonstrating how to integrate `@lubusin/wp-frappe-data-store` directly into WordPress admin!
-It features:
-- **Full-Screen Admin Interface**: Built with **`@wordpress/boot`** for native WordPress sidebar navigation across CRM entities.
-- **Next-Generation Build Architecture**: Packaged and bundled using **`@wordpress/build`** with npm workspaces (`packages/*` and `routes/*`).
-- **Server-Side REST Proxy**: Proxies cross-origin API calls to Frappe through a custom WordPress REST API endpoint (`/wp-json/frappe-data-store/v1/proxy`) using `wp_remote_request()` to prevent browser CORS restrictions.
-- **Zero-Config WordPress Playground**: Easily test locally without installing Docker, MySQL, or PHP! Just run `npm run playground` from the root directory to boot an instant WordPress Playground instance with the plugin pre-activated.
-
-See the [WPUI Frappe Plugin Starter Documentation](../wpui-frappe-plugin-starter/README.md) for full architectural details and setup instructions.
-
-## Standalone DataViews App Starter Template (`wpui-frappe-app-starter`)
-
-We provide a complete, standalone **WordPress DataViews App Starter Template** ([`wpui-frappe-app-starter`](../wpui-frappe-app-starter)) connected to Frappe CRM. Its WordPress-style app shell browses and manages Leads, Deals, Contacts, Organizations, Notes, and Tasks using the app's native DocTypes. The app also loads DocType metadata dynamically from Frappe, so record forms can surface field descriptions and placeholders when available.
-
-See the [WPUI Frappe App Starter Documentation](../wpui-frappe-app-starter/README.md) for full architectural details and setup instructions.
+> [!CAUTION]
+> Project is currently under active development.
 
 ## Install
 
 ```sh
-npm install @lubusin/wp-frappe-data-store @wordpress/data
+npm install @lubusin/wp-frappe-data-store @wordpress/data @wordpress/element react
 ```
 
-## Register a store
+## Quick Reference
 
-Register it once in your application entry point. The simplest setup connects directly to Frappe's REST API:
+### 1. Register the Store
 
-```js
+Register the store once in your application entry point (`main.tsx` or plugin bootstrapper):
+
+```ts
 import { registerFrappeDataStore } from '@lubusin/wp-frappe-data-store';
 
-const apiKey = 'YOUR_API_KEY';
-const apiSecret = 'YOUR_API_SECRET';
-
 export const frappeStore = registerFrappeDataStore({
-	storeName: 'my-plugin/frappe',
-	baseUrl: 'https://crm.example.com',
-	apiPath: '/api/resource',
-	headers: {
-		Authorization: `token ${apiKey}:${apiSecret}`,
+	storeName: 'my-app/frappe',
+	baseUrl: import.meta.env.DEV
+		? '/api/frappe-proxy'
+		: 'https://myfrappe.example.com',
+	headers: () => {
+		const token = localStorage.getItem('frappe_api_token');
+		return token ? { Authorization: `token ${token}` } : {};
 	},
+	credentials: 'include',
 });
 ```
 
-Frappe must allow requests from the application's origin. Direct access is useful for local development and trusted internal apps, but a browser bundle cannot keep an API secret: anyone who can load the app can inspect its JavaScript and network requests. Use a restricted Frappe user and token, and do not ship privileged credentials this way.
+> [!TIP]
+> For production WordPress plugins, route calls through a WordPress REST API endpoint (`/wp-json/my-plugin/v1/frappe`) using `X-WP-Nonce` to keep your API tokens securely on the server (`wp-config.php`). See the **[WordPress REST Proxy Guide](https://wp-frappe-data.lubus.in/guide/proxy-cors#wordpress-server-side-rest-proxy-pattern)**.
 
-For session-cookie authentication, omit the `Authorization` header and set `credentials: 'include'`. Frappe must then allow the exact frontend origin and credentialed cross-origin requests. The user must already have a valid Frappe session.
+### 2. Query and Mutate with Hooks
 
-## WordPress REST proxy pattern
+Subscribe to list queries, single records, and mutations. Re-renders happen automatically when background fetches resolve or when caches are invalidated:
 
-For a production WordPress plugin, proxy requests through WordPress. The browser authenticates to WordPress, while the Frappe URL and API token remain server-side:
-
-```text
-WordPress UI → /wp-json/my-plugin/v1/frappe/* → Frappe /api/resource/*
-```
-
-Define the Frappe connection in `wp-config.php` or provide the values through another server-side secrets mechanism. Do not store the token in JavaScript or commit it to the plugin:
-
-```php
-define( 'MY_PLUGIN_FRAPPE_URL', 'https://crm.example.com' );
-define( 'MY_PLUGIN_FRAPPE_TOKEN', 'token API_KEY:API_SECRET' );
-```
-
-Register an authenticated proxy route in the plugin. This compact example supports the resource operations used by the datastore:
-
-```php
-add_action(
-	'rest_api_init',
-	function () {
-		register_rest_route(
-			'my-plugin/v1',
-			'/frappe/(?P<path>api/resource(?:/.*)?)',
-			array(
-				'methods'             => array( 'GET', 'POST', 'PUT', 'DELETE' ),
-				'permission_callback' => function () {
-					return current_user_can( 'edit_posts' );
-				},
-				'callback'            => function ( WP_REST_Request $request ) {
-					$path = ltrim( $request['path'], '/' );
-					$url  = trailingslashit( MY_PLUGIN_FRAPPE_URL ) . $path;
-					$url  = add_query_arg( $request->get_query_params(), $url );
-
-					$response = wp_remote_request(
-						$url,
-						array(
-							'method'  => $request->get_method(),
-							'headers' => array(
-								'Accept'        => 'application/json',
-								'Authorization' => MY_PLUGIN_FRAPPE_TOKEN,
-								'Content-Type'  => 'application/json',
-							),
-							'body'    => $request->get_body(),
-							'timeout' => 20,
-						)
-					);
-
-					if ( is_wp_error( $response ) ) {
-						return new WP_Error(
-							'frappe_unavailable',
-							$response->get_error_message(),
-							array( 'status' => 502 )
-						);
-					}
-
-					$status = wp_remote_retrieve_response_code( $response );
-					$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-
-					return new WP_REST_Response( is_array( $body ) ? $body : array(), $status );
-				},
-			)
-		);
-	}
-);
-```
-
-Choose a capability appropriate to the records exposed by your plugin; `edit_posts` is only an example. Keeping the upstream host in server configuration—and accepting only the fixed `api/resource` path—also prevents clients from turning the endpoint into an open proxy.
-
-Expose a WordPress REST nonce to the plugin script when it is enqueued:
-
-```php
-wp_localize_script(
-	'my-plugin-app',
-	'myPluginSettings',
-	array(
-		'restNonce' => wp_create_nonce( 'wp_rest' ),
-	)
-);
-```
-
-Then configure the datastore exactly as in the direct connection example, changing `baseUrl` to the WordPress proxy and replacing the Frappe token with the WordPress REST nonce:
-
-```js
-export const frappeStore = registerFrappeDataStore({
-	storeName: 'my-plugin/frappe',
-	baseUrl: '/wp-json/my-plugin/v1/frappe',
-	apiPath: '/api/resource',
-	headers: {
-		'X-WP-Nonce': window.myPluginSettings.restNonce,
-	},
-	credentials: 'same-origin',
-});
-```
-
-The datastore still generates the normal `/api/resource/{doctype}/{name}` paths. The only difference is that they are sent to `/wp-json/my-plugin/v1/frappe` first, where WordPress authenticates the user and forwards them to Frappe. The proxy deliberately preserves Frappe's response body and HTTP status, including the standard `{ data: ... }` payload expected by the datastore.
-
-For a larger integration, move the route into a `WP_REST_Controller`, add explicit argument schemas, map capabilities per DocType or operation, rate-limit expensive requests, and avoid returning sensitive upstream error details to unauthorized users.
-
-## Use from a component
-
-```jsx
+```tsx
 import {
-	useFrappeResourceActions,
 	useFrappeResourceList,
+	useFrappeResourceActions,
 } from '@lubusin/wp-frappe-data-store';
 import { frappeStore } from './store';
 
@@ -164,7 +58,7 @@ export function OpenTasks() {
 		frappeStore,
 		'Task',
 		{
-			fields: ['subject', 'status'],
+			fields: ['name', 'subject', 'status'],
 			filters: [['status', '=', 'Open']],
 			orderBy: 'modified desc',
 			limit: 20,
@@ -172,68 +66,73 @@ export function OpenTasks() {
 	);
 	const { saveResource, deleteResource } = useFrappeResourceActions(frappeStore);
 
-	if (isResolving && !resources) return <p>Loading…</p>;
-	if (error) return <p>{error.message}</p>;
+	if (isResolving && !resources) return <p>Loading tasks…</p>;
+	if (error) return <p>Error loading tasks: {error.message}</p>;
 
 	return (
-		<ul>
-			{resources?.map((task) => (
-				<li key={task.name}>
-					{task.subject}
-					<button onClick={() => deleteResource('Task', task.name)}>
-						Delete
-					</button>
-				</li>
-			))}
-			<button onClick={() => saveResource('Task', { subject: 'New task' })}>
-				Add task
+		<div>
+			<ul>
+				{resources?.map((task) => (
+					<li key={task.name}>
+						{task.subject}
+						<button onClick={() => deleteResource('Task', task.name)}>
+							Delete
+						</button>
+					</li>
+				))}
+			</ul>
+			<button
+				onClick={() =>
+					saveResource('Task', { subject: 'New task', status: 'Open' })
+				}
+			>
+				Add Task
 			</button>
-		</ul>
+		</div>
 	);
 }
 ```
+### 3. Dynamic Forms via DocType Metadata
 
-Calling `getResource` or `getResourceList` through `useSelect` triggers their resolvers automatically. The package exports `createFrappeDataStore` for custom registries, `createFrappeRequest` for standalone transport setup, and `loadDocTypeDefinition` for retrieving normalized Frappe DocType metadata.
-
-## DocType metadata
-
-Frappe stores field definitions in the `DocType` DocType. The package can fetch that definition and normalize it into a smaller, UI-oriented shape suitable for generating forms, table columns, filters, and labels.
-
-### Use metadata in a component
-
-Pass the registered store and DocType name to `useDocTypeDefinition`. The hook loads the definition when needed, caches it, and updates the component as the request progresses:
+Inspect Frappe (`DocType`) field definitions normalized specifically for UI rendering (`label`, `type`, `placeholder`, `required`, `options`):
 
 ```tsx
 import { useDocTypeDefinition } from '@lubusin/wp-frappe-data-store';
 import { frappeStore } from './store';
 
-function LeadForm() {
-	const { docTypeDefinition, isResolving, error } =
-		useDocTypeDefinition(frappeStore, 'CRM Lead');
+export function LeadForm() {
+	const { docTypeDefinition, isResolving, error } = useDocTypeDefinition(
+		frappeStore,
+		'CRM Lead'
+	);
 
-	if (isResolving && !docTypeDefinition) {
-		return <p>Loading fields…</p>;
-	}
-
-	if (error) {
-		return <p>Could not load fields.</p>;
-	}
-
-	if (!docTypeDefinition) {
-		return null;
-	}
+	if (isResolving && !docTypeDefinition) return <p>Loading schema…</p>;
+	if (error || !docTypeDefinition) return null;
 
 	return (
 		<form>
+			<h3>Create {docTypeDefinition.name}</h3>
 			{docTypeDefinition.fields.map((field) => (
-				<label key={field.id}>
+				<label key={field.id} style={{ display: 'block', margin: '8px 0' }}>
 					{field.label}
-					<input
-						name={field.id}
-						required={field.required}
-						readOnly={field.readOnly}
-						placeholder={field.placeholder}
-					/>
+					{field.type === 'select' ? (
+						<select name={field.id} required={field.required}>
+							<option value="">Select option...</option>
+							{field.options?.map((opt) => (
+								<option key={opt} value={opt}>
+									{opt}
+								</option>
+							))}
+						</select>
+					) : (
+						<input
+							type={field.type === 'number' ? 'number' : 'text'}
+							name={field.id}
+							required={field.required}
+							readOnly={field.readOnly}
+							placeholder={field.placeholder}
+						/>
+					)}
 				</label>
 			))}
 		</form>
@@ -241,99 +140,29 @@ function LeadForm() {
 }
 ```
 
-The hook uses the connection already configured on `frappeStore`; no second transport setup is needed. Behind the scenes it requests `/api/resource/DocType/{doctype}`. The authenticated Frappe user must have permission to read that DocType definition.
+See **[DocType Metadata & Forms Guide](https://wp-frappe-data.lubus.in/guide/doctype-metadata)** for detailed normalization rules and usage outside React components.
 
-### Normalized result
+## Starter Templates
 
-When loading succeeds, `useDocTypeDefinition` exposes the normalized definition as `docTypeDefinition`:
+We provide two production-ready open-source starter repositories demonstrating architectural best practices:
 
-```tsx
-const { docTypeDefinition, isResolving, error } =
-	useDocTypeDefinition(frappeStore, 'CRM Lead');
-```
+| Template | Type | Description |
+| :--- | :--- | :--- |
+| **[`wpui-frappe-plugin-starter`](https://github.com/lubusIN/wpui-frappe-plugin-starter)** | WordPress Admin Plugin | Full-screen sidebar navigation across Frappe CRM entities (`@wordpress/boot`), server-side REST proxying, and instant **WordPress Playground** testing (`npm run playground`). |
+| **[`wpui-frappe-app-starter`](https://github.com/lubusIN/wpui-frappe-app-starter)** | Standalone SPA / DataViews | WordPress-style app shell (`@wordpress/dataviews`), dynamic DocType form generation, Vite local proxying, and Vitest setup. |
 
-Its shape is:
+For full setup instructions and comparison, check the **[Starter Templates Guide](https://wp-frappe-data.lubus.in/guide/starter-templates)**.
 
-```ts
-type DocTypeDefinition = {
-	name: string;
-	titleField: string;
-	fields: ResourceFieldDefinition[];
-};
+## Documentation & Guides
 
-type ResourceFieldDefinition = {
-	id: string;
-	label: string;
-	description?: string;
-	placeholder?: string;
-	type?: 'text' | 'textarea' | 'select' | 'checkbox' | 'date' | 'datetime' | 'number';
-	options?: string[];
-	required?: boolean;
-	readOnly?: boolean;
-};
-```
+We have dedicated, comprehensive documentation hosted at **[wp-frappe-data.lubus.in](https://wp-frappe-data.lubus.in/)**:
 
-The hook loads this metadata through the configured store and caches it by DocType. During normalization, the package:
-
-- Uses Frappe's `title_field`, falling back to the first visible field and then `name`.
-- Converts Frappe field types into a smaller set of UI-friendly types.
-- Splits newline-delimited `Select` options into an array.
-- Preserves labels, descriptions, placeholders, required state, and read-only state.
-- Excludes hidden fields and layout-only controls such as section breaks, column breaks, buttons, HTML, and child tables.
-- Generates a human-readable label from the field name when Frappe does not provide one.
-
-For example, when the hook receives a Frappe field such as:
-
-```json
-{
-	"fieldname": "lead_name",
-	"label": "Lead name",
-	"fieldtype": "Data",
-	"reqd": 1,
-	"description": "The person or organization entering the pipeline"
-}
-```
-
-it exposes that field in `docTypeDefinition.fields` as:
-
-```json
-{
-	"id": "lead_name",
-	"label": "Lead name",
-	"type": "text",
-	"required": true,
-	"readOnly": false,
-	"description": "The person or organization entering the pipeline"
-}
-```
-
-### Use metadata outside React
-
-The hook is the recommended API for components. If metadata is needed outside React, use the equivalent resolver-backed selector:
-
-```js
-import { resolveSelect } from '@wordpress/data';
-
-const definition = await resolveSelect(frappeStore).getDocTypeDefinition(
-	'CRM Lead'
-);
-```
-
-Both the hook and selector use the registered store's connection and share its resolved definition. Repeated reads of the same DocType use the cached value rather than making another request. Definitions currently remain cached for the lifetime of the page and have no automatic expiry, so reload the page after changing fields in Frappe when live schema changes matter.
-
-The lower-level `loadDocTypeDefinition(request, doctype)` helper is only needed when using the metadata normalizer without a registered `@wordpress/data` store.
-
-## API
-
-- **Store registration & creation**: `registerFrappeDataStore`, `createFrappeDataStore`
-- **Hooks**: `useFrappeResource`, `useFrappeResourceList`, `useFrappeResourceActions`, `useDocTypeDefinition`
-- **Selectors**: `getResource`, `getResourceList`, `getDocTypeDefinition`, `isRequestPending`, `getRequestError`
-- **Actions**: `fetchDocTypeDefinition`, `fetchResource`, `fetchResourceList`, `saveResource`, `deleteResource`, `invalidateResourceLists`
-- **Transport & Errors**: `createFrappeRequest`, `FrappeRequestError`
-- **Utilities & Helpers**: `loadDocTypeDefinition`, `getListKey`, `getResourceKey`, `toFrappeQuery`
-- **TypeScript Types**: `FrappeDataStore`, `FrappeStoreConfig`, `FrappeResource`, `FrappeResourceActions`, `FrappeListQuery`, `FrappeFilter`, `FrappeRequest`, `FrappeRequestOptions`, `FrappeBoundSelectors`, `DocTypeDefinition`, `ResourceFieldDefinition`, `RequestStatus`
-
-List responses are normalized by Frappe's `name` field. When an explicit `fields` list is supplied, the store automatically includes `name`.
+- **[Getting Started](https://wp-frappe-data.lubus.in/guide/getting-started)**: Setup, configuration, and environment handling
+- **[React Hooks Guide](https://wp-frappe-data.lubus.in/guide/react-hooks)**: Detailed examples of list queries, item fetching, and mutations
+- **[Proxy & CORS Setup](https://wp-frappe-data.lubus.in/guide/proxy-cors)**: Vite dev proxying and WordPress server-side REST API proxy patterns
+- **[DocType Metadata & Forms](https://wp-frappe-data.lubus.in/guide/doctype-metadata)**: Auto-generating UI forms using normalized schema definitions
+- **[Starter Templates](https://wp-frappe-data.lubus.in/guide/starter-templates)**: Standalone architectures for WordPress plugins & SPAs
+- **[API Reference](https://wp-frappe-data.lubus.in/api/)**: Full TypeScript classes, interfaces, hooks, and selectors
 
 ## Development
 
@@ -342,6 +171,7 @@ npm test
 npm run typecheck
 npm run build
 ```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -358,3 +188,6 @@ For issues and feature requests, please use the GitHub issue tracker.
 <img src="https://raw.githubusercontent.com/lubusIN/.github/refs/heads/main/profile/banner.png" />
 </a>
 
+## License
+
+WP Frappe Data Store is open-sourced licensed under the [MIT License](LICENSE).

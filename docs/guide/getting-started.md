@@ -17,23 +17,19 @@ In your application's entry point (`main.tsx` or plugin bootstrapper), register 
 ```ts
 import { registerFrappeDataStore } from '@lubusin/wp-frappe-data-store';
 
-registerFrappeDataStore({
+export const frappeStore = registerFrappeDataStore({
   storeName: 'my-app/frappe',
-  siteUrl: () => localStorage.getItem('frappe_site_url') || 'https://myfrappe.localhost',
-  getHeaders: () => {
+  baseUrl: import.meta.env.DEV
+    ? '/api/frappe-proxy'
+    : (localStorage.getItem('frappe_site_url') || 'https://myfrappe.localhost'),
+  headers: () => {
     const token = localStorage.getItem('frappe_api_token');
     if (token) {
       return { Authorization: `token ${token}` };
     }
     return {};
   },
-  // Optional: Route requests through a local proxy during dev to bypass CORS / Secure cookie limitations
-  getRequestUrl: (path) => {
-    if (import.meta.env.DEV) {
-      return `/api/frappe-proxy?path=${encodeURIComponent(path)}`;
-    }
-    return `${localStorage.getItem('frappe_site_url')}${path}`;
-  }
+  credentials: 'include',
 });
 ```
 
