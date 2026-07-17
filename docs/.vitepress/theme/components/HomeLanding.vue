@@ -179,7 +179,7 @@ const activeTab = ref('hooks');
           </div>
           <h3 class="pg-starter-title">wpui-frappe-plugin-starter</h3>
           <p class="pg-starter-desc">
-            Admin sidebar navigation across Frappe CRM entities (`@wordpress/boot`), server-side REST proxying, and instant testing with <strong>WordPress Playground</strong> (<code>npm run playground</code>).
+            Admin sidebar navigation across Frappe CRM entities (<code>@wordpress/boot</code>), server-side REST proxying, and instant testing with <strong>WordPress Playground</strong> (<code>npm run playground</code>).
           </p>
           <div class="pg-starter-link">
             <span>View Repository</span>
@@ -197,7 +197,7 @@ const activeTab = ref('hooks');
           </div>
           <h3 class="pg-starter-title">wpui-frappe-app-starter</h3>
           <p class="pg-starter-desc">
-            Standalone SPA built with WordPress DataViews (`@wordpress/dataviews`), dynamic DocType form generation, Vite local development server, and Vitest testing harness.
+            Standalone SPA built with WordPress DataViews (<code>@wordpress/dataviews</code>), dynamic DocType form generation, Vite local development server, and Vitest testing harness.
           </p>
           <div class="pg-starter-link">
             <span>View Repository</span>
