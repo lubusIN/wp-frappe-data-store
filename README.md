@@ -144,12 +144,12 @@ See **[DocType Metadata & Forms Guide](https://wp-frappe-data.lubus.in/guide/doc
 
 ## Starter Templates
 
-We provide two production-ready open-source starter repositories demonstrating architectural best practices:
+We provide two production-ready open-source starter repositories:
 
-| Template | Type | Description |
-| :--- | :--- | :--- |
-| **[`wpui-frappe-plugin-starter`](https://github.com/lubusIN/wpui-frappe-plugin-starter)** | WordPress Admin Plugin | Full-screen sidebar navigation across Frappe CRM entities (`@wordpress/boot`), server-side REST proxying, and instant **WordPress Playground** testing (`npm run playground`). |
-| **[`wpui-frappe-app-starter`](https://github.com/lubusIN/wpui-frappe-app-starter)** | Standalone SPA / DataViews | WordPress-style app shell (`@wordpress/dataviews`), dynamic DocType form generation, Vite local proxying, and Vitest setup. |
+| Template | Description |
+| :--- | :--- |
+| **[`wpui-frappe-plugin-starter`](https://github.com/lubusIN/wpui-frappe-plugin-starter)** | **WordPress Admin Plugin** featuring full-screen sidebar navigation across Frappe CRM entities (`@wordpress/boot`), server-side REST proxying, and instant **WordPress Playground** testing (`npm run playground`). |
+| **[`wpui-frappe-app-starter`](https://github.com/lubusIN/wpui-frappe-app-starter)** | **Standalone SPA / DataViews** featuring a WordPress-style app shell (`@wordpress/dataviews`), dynamic DocType form generation, Vite local proxying, and Vitest setup. |
 
 For full setup instructions and comparison, check the **[Starter Templates Guide](https://wp-frappe-data.lubus.in/guide/starter-templates)**.
 
@@ -166,11 +166,27 @@ We have dedicated, comprehensive documentation hosted at **[wp-frappe-data.lubus
 
 ## Development
 
+This library uses a modern TypeScript build and testing pipeline (`tsup`, `vitest`, and `@wordpress/data`).
+
+### Prerequisites & Setup
+
+Clone the repository and install dependencies using npm:
+
 ```sh
-npm test
-npm run typecheck
-npm run build
+git clone https://github.com/lubusIN/wp-frappe-data-store.git
+cd wp-frappe-data-store
+npm install
 ```
+
+### Common Commands
+
+| Command | Description |
+| :--- | :--- |
+| **`npm test`** | Runs the full unit test suite using Vitest (`tests/*.test.ts`). |
+| **`npm run coverage`** | Runs unit tests with V8 code coverage reports and checks threshold enforcement. |
+| **`npm run typecheck`** | Performs strict TypeScript static type checking (`tsc --noEmit`). |
+| **`npm run build`** | Compiles dual ES Module (`.js`) and CommonJS (`.cjs`) bundles along with TypeScript declaration files (`.d.ts`) to `dist/`. |
+| **`npm run docs:dev`** | Auto-generates TypeDoc API documentation and starts a local VitePress dev server with live reload. |
 
 ## Contributing
 
