@@ -4,7 +4,7 @@
 
 > **getListKey**(`doctype`, `query?`): `string`
 
-Defined in: [src/utils.ts:40](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/utils.ts#L40)
+Defined in: [src/utils.ts:40](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/utils.ts#L40)
 
 Generates a deterministic cache key for a queried resource list.
 

@@ -2,7 +2,7 @@
 
 # Class: FrappeRequestError
 
-Defined in: [src/request.ts:19](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/request.ts#L19)
+Defined in: [src/request.ts:19](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/request.ts#L19)
 
 Custom error class thrown when a Frappe HTTP API request fails or returns a non-2xx status code.
 Extracts user-readable error messages from Frappe `_server_messages` or `exception` payloads when available.
@@ -17,7 +17,7 @@ Extracts user-readable error messages from Frappe `_server_messages` or `excepti
 
 > **new FrappeRequestError**(`message`, `status`, `body`): `FrappeRequestError`
 
-Defined in: [src/request.ts:23](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/request.ts#L23)
+Defined in: [src/request.ts:23](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/request.ts#L23)
 
 #### Parameters
 
@@ -47,7 +47,7 @@ Defined in: [src/request.ts:23](https://github.com/lubusIN/wp-frappe-data-store/
 
 > **body**: `unknown`
 
-Defined in: [src/request.ts:21](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/request.ts#L21)
+Defined in: [src/request.ts:21](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/request.ts#L21)
 
 ***
 
@@ -91,7 +91,7 @@ Defined in: node\_modules/typescript/lib/lib.es5.d.ts:1076
 
 > **status**: `number`
 
-Defined in: [src/request.ts:20](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/request.ts#L20)
+Defined in: [src/request.ts:20](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/request.ts#L20)
 
 ***
 

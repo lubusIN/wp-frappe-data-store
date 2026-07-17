@@ -1,10 +1,14 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-  title: 'WP Frappe Data Store',
+  title: 'WP Frappe Data',
   description: 'Reactive WordPress @wordpress/data & React Hooks for Frappe Framework & CRM',
   base: '/',
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
+  ],
   themeConfig: {
+    logo: '/logo.svg',
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },

@@ -7,5 +7,6 @@
   "hideBreadcrumbs": false,
   "hidePageHeader": true,
   "hidePageTitle": false,
-  "entryFileName": "index.md"
+  "entryFileName": "index.md",
+  "gitRevision": "main"
 }

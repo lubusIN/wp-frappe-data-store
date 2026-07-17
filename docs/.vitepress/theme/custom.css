@@ -1,0 +1,147 @@
+/* ==========================================================================
+   WordPress Playground Inspired Theme for WP Frappe Data Store
+   Palette & Design Tokens based on https://wordpress.org/playground/
+   ========================================================================== */
+
+:root {
+  /* WordPress Blueberry & Playground Brand Accents */
+  --vp-c-brand-1: #3858e9;         /* Blueberry 1 (Primary Action) */
+  --vp-c-brand-2: #213fd4;         /* Deep Blueberry (Hover) */
+  --vp-c-brand-3: #1d35b4;         /* Dark Blueberry (Active) */
+  --vp-c-brand-soft: rgba(56, 88, 233, 0.12);
+
+  /* Typography & Headings */
+  --vp-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  /* Hero Section Styling */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(135deg, #3858e9 0%, #0693e3 100%);
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, #3858e9 50%, #4721fb 50%);
+  --vp-home-hero-image-filter: blur(48px);
+
+  /* Playground Crisp Buttons */
+  --vp-button-brand-bg: #3858e9;
+  --vp-button-brand-hover-bg: #213fd4;
+  --vp-button-brand-active-bg: #1d35b4;
+  --vp-button-brand-border: #3858e9;
+}
+
+/* Dark Mode (WordPress Charcoal Palette #1e1e1e / #23282d) */
+.dark {
+  --vp-c-brand-1: #6883ff;         /* Lighter Blueberry for dark mode contrast */
+  --vp-c-brand-2: #3858e9;
+  --vp-c-brand-3: #213fd4;
+  --vp-c-brand-soft: rgba(104, 131, 255, 0.16);
+
+  --vp-home-hero-name-background: -webkit-linear-gradient(135deg, #6883ff 0%, #34e2e4 100%);
+
+  /* Playground Charcoal Surfaces */
+  --vp-c-bg: #1e1e1e;              /* WP Charcoal 1 */
+  --vp-c-bg-alt: #1a1919;          /* WP Charcoal 0 */
+  --vp-c-bg-soft: #23282d;         /* WP Charcoal 2 */
+}
+
+/* ==========================================================================
+   Homepage & Feature Card Enhancements (Playground Aesthetic)
+   ========================================================================== */
+
+.VPHomeHero .name {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.VPHomeHero .text {
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--vp-c-text-1);
+}
+
+.VPHomeHero .tagline {
+  font-size: clamp(16px, 2.5vw, 20px);
+  max-width: 640px;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
+/* Feature Cards with Playground-style hover highlights */
+.VPHomeFeatures .VPHomeFeature {
+  border: 1px solid var(--vp-c-gutter);
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.VPHomeFeatures .VPHomeFeature:hover {
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 8px 24px -4px var(--vp-c-brand-soft);
+  transform: translateY(-2px);
+}
+
+.VPHomeFeatures .VPHomeFeature .title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Documentation Content & Code Blocks
+   ========================================================================== */
+
+.vp-doc h1, .vp-doc h2, .vp-doc h3 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+
+/* Code block container styled with Playground charcoal header */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-gutter);
+}
+
+.dark .vp-doc div[class*='language-'] {
+  background-color: #1a1919;
+}
+
+/* Custom Callout Box / Tip accenting with Brand Blueberry */
+.vp-doc .custom-block.tip {
+  border-color: var(--vp-c-brand-1);
+  background-color: var(--vp-c-brand-soft);
+}
+
+/* ==========================================================================
+   Full-Width Layout Override for Custom HomeLanding Component
+   ========================================================================== */
+.VPHome .VPHomeContent {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.VPHome .VPHomeContent .vp-doc {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+.VPHome .VPHomeContent .vp-doc h1,
+.VPHome .VPHomeContent .vp-doc h2,
+.VPHome .VPHomeContent .vp-doc h3,
+.VPHome .VPHomeContent .vp-doc h4,
+.vp-doc .pg-landing h1,
+.vp-doc .pg-landing h2,
+.vp-doc .pg-landing h3,
+.vp-doc .pg-landing h4,
+.vp-doc .pg-landing section,
+.vp-doc .pg-landing .pg-section-header {
+  border: none !important;
+  border-bottom: none !important;
+  border-top: none !important;
+}
+
+/* Ensure official brand logo emblem + text renders crisp and proportionally in navbar */
+.VPNavBarTitle .logo {
+  height: 28px !important;
+  width: auto !important;
+}
+

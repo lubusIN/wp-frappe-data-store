@@ -4,7 +4,7 @@
 
 > **registerFrappeDataStore**(`config?`): [`FrappeDataStore`](../type-aliases/FrappeDataStore.md)
 
-Defined in: [src/store/index.ts:41](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/store/index.ts#L41)
+Defined in: [src/store/index.ts:41](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/store/index.ts#L41)
 
 Creates and immediately registers a Frappe `@wordpress/data` store in the global WordPress data registry.
 

@@ -4,7 +4,7 @@
 
 > **FrappeActionCreators** = `object`
 
-Defined in: [src/types.ts:93](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L93)
+Defined in: [src/types.ts:93](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L93)
 
 ## Properties
 
@@ -12,7 +12,7 @@ Defined in: [src/types.ts:93](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **deleteResource**: (`doctype`, `name`) => (`context`) => `Promise`\<`void`\>
 
-Defined in: [src/types.ts:109](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L109)
+Defined in: [src/types.ts:109](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L109)
 
 #### Parameters
 
@@ -34,7 +34,7 @@ Defined in: [src/types.ts:109](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **fetchDocTypeDefinition**: (`doctype`) => (`context`) => `Promise`\<[`DocTypeDefinition`](DocTypeDefinition.md)\>
 
-Defined in: [src/types.ts:94](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L94)
+Defined in: [src/types.ts:94](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L94)
 
 #### Parameters
 
@@ -52,7 +52,7 @@ Defined in: [src/types.ts:94](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **fetchResource**: (`doctype`, `name`) => (`context`) => `Promise`\<[`FrappeResource`](FrappeResource.md)\>
 
-Defined in: [src/types.ts:97](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L97)
+Defined in: [src/types.ts:97](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L97)
 
 #### Parameters
 
@@ -74,7 +74,7 @@ Defined in: [src/types.ts:97](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **fetchResourceList**: (`doctype`, `query?`) => (`context`) => `Promise`\<[`FrappeResource`](FrappeResource.md)[]\>
 
-Defined in: [src/types.ts:101](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L101)
+Defined in: [src/types.ts:101](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L101)
 
 #### Parameters
 
@@ -96,7 +96,7 @@ Defined in: [src/types.ts:101](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **invalidateResourceLists**: (`doctype`) => `object`
 
-Defined in: [src/types.ts:113](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L113)
+Defined in: [src/types.ts:113](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L113)
 
 #### Parameters
 
@@ -122,7 +122,7 @@ Defined in: [src/types.ts:113](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **saveResource**: (`doctype`, `values`) => (`context`) => `Promise`\<[`FrappeResource`](FrappeResource.md)\>
 
-Defined in: [src/types.ts:105](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L105)
+Defined in: [src/types.ts:105](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L105)
 
 #### Parameters
 

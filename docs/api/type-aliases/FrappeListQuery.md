@@ -4,7 +4,7 @@
 
 > **FrappeListQuery** = `object`
 
-Defined in: [src/types.ts:53](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L53)
+Defined in: [src/types.ts:53](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L53)
 
 Parameters for querying a list of Frappe resources.
 
@@ -18,7 +18,7 @@ Parameters for querying a list of Frappe resources.
 
 > `optional` **distinct?**: `boolean`
 
-Defined in: [src/types.ts:61](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L61)
+Defined in: [src/types.ts:61](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L61)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [src/types.ts:61](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **fields?**: `string`[]
 
-Defined in: [src/types.ts:54](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L54)
+Defined in: [src/types.ts:54](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L54)
 
 ***
 
@@ -34,7 +34,7 @@ Defined in: [src/types.ts:54](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **filters?**: [`FrappeFilter`](FrappeFilter.md)[] \| `Record`\<`string`, `unknown`\>
 
-Defined in: [src/types.ts:55](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L55)
+Defined in: [src/types.ts:55](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L55)
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: [src/types.ts:55](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **groupBy?**: `string`
 
-Defined in: [src/types.ts:60](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L60)
+Defined in: [src/types.ts:60](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L60)
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: [src/types.ts:60](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **limit?**: `number`
 
-Defined in: [src/types.ts:59](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L59)
+Defined in: [src/types.ts:59](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L59)
 
 ***
 
@@ -58,7 +58,7 @@ Defined in: [src/types.ts:59](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **limitStart?**: `number`
 
-Defined in: [src/types.ts:58](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L58)
+Defined in: [src/types.ts:58](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L58)
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [src/types.ts:58](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **orderBy?**: `string`
 
-Defined in: [src/types.ts:57](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L57)
+Defined in: [src/types.ts:57](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L57)
 
 ***
 
@@ -74,4 +74,4 @@ Defined in: [src/types.ts:57](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **orFilters?**: [`FrappeFilter`](FrappeFilter.md)[]
 
-Defined in: [src/types.ts:56](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L56)
+Defined in: [src/types.ts:56](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L56)

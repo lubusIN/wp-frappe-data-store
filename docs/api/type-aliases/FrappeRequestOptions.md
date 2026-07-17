@@ -4,7 +4,7 @@
 
 > **FrappeRequestOptions** = `object`
 
-Defined in: [src/types.ts:68](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L68)
+Defined in: [src/types.ts:68](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L68)
 
 Request options passed to a `FrappeRequest` transport function.
 
@@ -14,7 +14,7 @@ Request options passed to a `FrappeRequest` transport function.
 
 > `optional` **data?**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/types.ts:72](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L72)
+Defined in: [src/types.ts:72](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L72)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [src/types.ts:72](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **method**: `"GET"` \| `"POST"` \| `"PUT"` \| `"DELETE"`
 
-Defined in: [src/types.ts:69](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L69)
+Defined in: [src/types.ts:69](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L69)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [src/types.ts:69](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **path**: `string`
 
-Defined in: [src/types.ts:70](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L70)
+Defined in: [src/types.ts:70](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L70)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [src/types.ts:70](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **query?**: `Record`\<`string`, `string`\>
 
-Defined in: [src/types.ts:71](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L71)
+Defined in: [src/types.ts:71](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L71)
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: [src/types.ts:71](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **signal?**: `AbortSignal`
 
-Defined in: [src/types.ts:73](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L73)
+Defined in: [src/types.ts:73](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L73)

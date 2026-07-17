@@ -4,7 +4,7 @@
 
 > **ResourceFieldDefinition** = `object`
 
-Defined in: [src/types.ts:15](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L15)
+Defined in: [src/types.ts:15](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L15)
 
 Normalized metadata definition for a single field within a Frappe DocType.
 
@@ -14,7 +14,7 @@ Normalized metadata definition for a single field within a Frappe DocType.
 
 > `optional` **description?**: `string`
 
-Defined in: [src/types.ts:18](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L18)
+Defined in: [src/types.ts:18](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L18)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [src/types.ts:18](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **id**: `string`
 
-Defined in: [src/types.ts:16](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L16)
+Defined in: [src/types.ts:16](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L16)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [src/types.ts:16](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > **label**: `string`
 
-Defined in: [src/types.ts:17](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L17)
+Defined in: [src/types.ts:17](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L17)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [src/types.ts:17](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **options?**: `string`[]
 
-Defined in: [src/types.ts:28](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L28)
+Defined in: [src/types.ts:28](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L28)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [src/types.ts:28](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **placeholder?**: `string`
 
-Defined in: [src/types.ts:19](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L19)
+Defined in: [src/types.ts:19](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L19)
 
 ***
 
@@ -54,7 +54,7 @@ Defined in: [src/types.ts:19](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **readOnly?**: `boolean`
 
-Defined in: [src/types.ts:30](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L30)
+Defined in: [src/types.ts:30](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L30)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [src/types.ts:30](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **required?**: `boolean`
 
-Defined in: [src/types.ts:29](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L29)
+Defined in: [src/types.ts:29](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L29)
 
 ***
 
@@ -70,4 +70,4 @@ Defined in: [src/types.ts:29](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **type?**: `"text"` \| `"textarea"` \| `"select"` \| `"checkbox"` \| `"date"` \| `"datetime"` \| `"number"`
 
-Defined in: [src/types.ts:20](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L20)
+Defined in: [src/types.ts:20](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L20)

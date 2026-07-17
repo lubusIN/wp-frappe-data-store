@@ -4,7 +4,7 @@
 
 > **FrappeBoundSelectors** = `object`
 
-Defined in: [src/types.ts:119](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L119)
+Defined in: [src/types.ts:119](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L119)
 
 Bound store selectors as exposed inside React component hooks or registry selections.
 
@@ -14,7 +14,7 @@ Bound store selectors as exposed inside React component hooks or registry select
 
 > **getDocTypeDefinition**: (`doctype`) => [`DocTypeDefinition`](DocTypeDefinition.md) \| `undefined`
 
-Defined in: [src/types.ts:125](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L125)
+Defined in: [src/types.ts:125](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L125)
 
 #### Parameters
 
@@ -32,7 +32,7 @@ Defined in: [src/types.ts:125](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **getRequestError**: (`requestKey`) => `unknown`
 
-Defined in: [src/types.ts:129](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L129)
+Defined in: [src/types.ts:129](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L129)
 
 #### Parameters
 
@@ -50,7 +50,7 @@ Defined in: [src/types.ts:129](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **getResource**: (`doctype`, `name`) => [`FrappeResource`](FrappeResource.md) \| `undefined`
 
-Defined in: [src/types.ts:120](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L120)
+Defined in: [src/types.ts:120](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L120)
 
 #### Parameters
 
@@ -72,7 +72,7 @@ Defined in: [src/types.ts:120](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **getResourceList**: (`doctype`, `query?`) => [`FrappeResource`](FrappeResource.md)[] \| `undefined`
 
-Defined in: [src/types.ts:121](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L121)
+Defined in: [src/types.ts:121](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L121)
 
 #### Parameters
 
@@ -94,7 +94,7 @@ Defined in: [src/types.ts:121](https://github.com/lubusIN/wp-frappe-data-store/b
 
 > **isRequestPending**: (`requestKey`) => `boolean`
 
-Defined in: [src/types.ts:128](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L128)
+Defined in: [src/types.ts:128](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L128)
 
 #### Parameters
 

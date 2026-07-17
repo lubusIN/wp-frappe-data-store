@@ -4,7 +4,7 @@
 
 > **FrappeStoreConfig** = `object`
 
-Defined in: [src/types.ts:84](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L84)
+Defined in: [src/types.ts:84](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L84)
 
 Configuration options for creating or registering a Frappe data store.
 
@@ -14,7 +14,7 @@ Configuration options for creating or registering a Frappe data store.
 
 > `optional` **apiPath?**: `string`
 
-Defined in: [src/types.ts:87](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L87)
+Defined in: [src/types.ts:87](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L87)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [src/types.ts:87](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **baseUrl?**: `string`
 
-Defined in: [src/types.ts:86](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L86)
+Defined in: [src/types.ts:86](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L86)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [src/types.ts:86](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **credentials?**: `RequestCredentials`
 
-Defined in: [src/types.ts:90](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L90)
+Defined in: [src/types.ts:90](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L90)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [src/types.ts:90](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **headers?**: `HeadersInit` \| (() => `HeadersInit`)
 
-Defined in: [src/types.ts:89](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L89)
+Defined in: [src/types.ts:89](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L89)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [src/types.ts:89](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **request?**: [`FrappeRequest`](FrappeRequest.md)
 
-Defined in: [src/types.ts:88](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L88)
+Defined in: [src/types.ts:88](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L88)
 
 ***
 
@@ -54,4 +54,4 @@ Defined in: [src/types.ts:88](https://github.com/lubusIN/wp-frappe-data-store/bl
 
 > `optional` **storeName?**: `string`
 
-Defined in: [src/types.ts:85](https://github.com/lubusIN/wp-frappe-data-store/blob/9ee6bbc044f2a455368bef2eef01b972f4b0f186/src/types.ts#L85)
+Defined in: [src/types.ts:85](https://github.com/lubusIN/wp-frappe-data-store/blob/main/src/types.ts#L85)
