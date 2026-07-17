@@ -17,6 +17,9 @@ export default defineConfig({
   title: 'WP Frappe Data',
   description: 'Reactive WordPress @wordpress/data & React Hooks for Frappe Framework & CRM',
   base: '/',
+  appearance: {
+    initialValue: 'light'
+  } as any,
   lastUpdated: true,
   transformPageData(pageData) {
     if (pageData.relativePath.startsWith('api/')) {
