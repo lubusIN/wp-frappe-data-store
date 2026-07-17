@@ -10,10 +10,10 @@ const activeTab = ref('hooks');
     <section class="pg-hero">
       <div class="pg-hero-content">
         <h1 class="pg-hero-title">
-          Reactive Frappe Data for WordPress &amp; React
+          Headless <span class="pg-accent">Frappe</span> <br/>for WordPress
         </h1>
         <p class="pg-hero-tagline">
-          Connect Frappe Framework and Frappe CRM DocTypes to WordPress interfaces with <code>@wordpress/data</code> caching and strict TypeScript React hooks.
+          Connect Frappe DocTypes to WordPress interfaces with <code>@wordpress/data</code> using React hooks.
         </p>
         <div class="pg-hero-actions">
           <a href="/guide/getting-started" class="pg-btn pg-btn-primary">
@@ -82,15 +82,9 @@ const activeTab = ref('hooks');
         <!-- Separate Output Preview Card Outside Code Tabs -->
         <div class="pg-preview-card">
           <div class="pg-preview-header">
-            <span>Rendered Output Preview</span>
-            <span class="pg-status-badge" v-if="activeTab === 'hooks'">
-              <span class="pg-status-dot"></span> Live Synced &bull; 12ms
-            </span>
-            <span class="pg-status-badge" v-if="activeTab === 'store'">
-              <span class="pg-status-dot"></span> Store Initialized
-            </span>
+            <span>Rendered Preview</span>
           </div>
-          <ul v-if="activeTab === 'hooks'" class="pg-deals-list">
+          <ul class="pg-deals-list">
             <li>
               <div class="pg-deal-info">
                 <strong>Acme Cloud Migration</strong>
@@ -112,20 +106,6 @@ const activeTab = ref('hooks');
               </div>
             </li>
           </ul>
-          <div v-if="activeTab === 'store'" class="pg-store-output">
-            <div class="pg-store-row">
-              <span class="pg-store-label">Store Identifier:</span>
-              <code class="pg-store-code">my-app/frappe</code>
-            </div>
-            <div class="pg-store-row">
-              <span class="pg-store-label">Transport Mode:</span>
-              <span class="pg-pill pg-pill-open">REST Proxy Active</span>
-            </div>
-            <div class="pg-store-row">
-              <span class="pg-store-label">State Engine:</span>
-              <span class="pg-store-val">@wordpress/data Redux Store</span>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -151,7 +131,7 @@ const activeTab = ref('hooks');
           </div>
           <h3 class="pg-feature-title">@wordpress/data Engine</h3>
           <p class="pg-feature-desc">
-            Built on WordPress's Redux state management engine (<code>wpui-frappe/resources</code>). Shares cached records and deduplicates requests across components.
+            Built on WordPress's Redux state management engine (<code>frappe/resources</code> by default). Shares cached records and deduplicates requests across components.
           </p>
         </div>
 
@@ -233,7 +213,9 @@ const activeTab = ref('hooks');
         <h2>Start using WP Frappe Data Store</h2>
         <p>Install the package via npm and configure your first store.</p>
         <div class="pg-cta-code">
-          <code>npm install @lubusin/wp-frappe-data-store @wordpress/data react</code>
+          <slot name="install-code">
+            <code>npm install @lubusin/wp-frappe-data-store @wordpress/data react</code>
+          </slot>
         </div>
         <div class="pg-cta-actions">
           <a href="/guide/getting-started" class="pg-btn pg-btn-primary">Documentation</a>
@@ -253,7 +235,7 @@ const activeTab = ref('hooks');
   width: 100%;
   max-width: var(--vp-layout-max-width, 1440px);
   margin: 0 auto;
-  padding: 24px 32px 72px;
+  padding: 24px 32px 0;
   font-family: var(--vp-font-family-base);
   box-sizing: border-box;
 }
@@ -285,12 +267,17 @@ const activeTab = ref('hooks');
 }
 
 .pg-hero-title {
-  font-size: clamp(36px, 5vw, 56px);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  font-family: var(--vp-font-family-serif, "EB Garamond", Georgia, serif);
+  font-size: clamp(40px, 5.5vw, 62px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
   color: var(--vp-c-text-1);
   margin-bottom: 20px;
+}
+
+.pg-hero-title .pg-accent {
+  color: #3858e9;
 }
 
 .pg-hero-tagline {
@@ -310,34 +297,40 @@ const activeTab = ref('hooks');
 .pg-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 15px;
+  padding: 14px 32px;
+  border-radius: 2px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.4;
   text-decoration: none !important;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-in-out;
   cursor: pointer;
 }
 
 .pg-btn-primary {
-  background-color: var(--vp-c-brand-1);
+  background-color: #3858e9;
   color: #ffffff !important;
+  border: 1px solid #3858e9;
 }
 
 .pg-btn-primary:hover {
-  background-color: var(--vp-c-brand-2);
+  background-color: #213fd4;
+  border-color: #213fd4;
+  color: #ffffff !important;
 }
 
 .pg-btn-secondary {
-  background-color: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1) !important;
-  border: 1px solid var(--vp-c-gutter);
+  background-color: transparent;
+  color: #3858e9 !important;
+  border: 1px solid #3858e9;
 }
 
 .pg-btn-secondary:hover {
-  border-color: var(--vp-c-text-2);
-  background-color: var(--vp-c-bg-alt);
+  background-color: #213fd4;
+  border-color: #213fd4;
+  color: #ffffff !important;
 }
 
 /* --- Clean Code Preview Card --- */
@@ -345,19 +338,19 @@ const activeTab = ref('hooks');
   width: 100%;
   box-sizing: border-box;
   background-color: #1a1919;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border: 1px solid #40464d;
+  border-radius: 2px;
   overflow: hidden;
-  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.35);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
 }
 
 .pg-code-tabs {
   display: flex;
-  gap: 4px;
-  padding: 6px;
-  background-color: #23282d;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  align-items: stretch;
+  gap: 2px;
+  padding: 8px 8px 0 8px;
+  background-color: #141414;
+  border-bottom: 1px solid #40464d;
+  align-items: flex-end;
 }
 
 .pg-tab {
@@ -365,29 +358,35 @@ const activeTab = ref('hooks');
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 24px;
+  height: 28px;
   box-sizing: border-box;
-  background: transparent;
-  border: none;
-  color: #979aa1;
-  font-size: 11px;
+  background: #1e1e1e;
+  border: 1px solid #30363d;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  color: #80848d;
+  font-size: 12px;
   font-family: monospace;
-  padding: 0 10px;
-  border-radius: 4px;
+  padding: 0 14px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
   line-height: 1;
+  position: relative;
+  bottom: -1px;
 }
 
 .pg-tab:hover {
+  background: #23282d;
   color: #e5e7eb;
 }
 
 .pg-tab.active {
-  background-color: #3858e9;
+  background-color: #1a1919;
   color: #ffffff;
   font-weight: 600;
+  border-color: #40464d;
+  border-bottom: 1px solid #1a1919;
 }
 
 .pg-code-content {
@@ -418,58 +417,24 @@ const activeTab = ref('hooks');
 .pg-preview-card {
   width: 100%;
   box-sizing: border-box;
-  margin-top: 10px;
+  margin-top: 12px;
   background-color: #1a1919;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 10px 14px;
-  height: 195px;
-  overflow-y: auto;
-  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.35);
-}
-
-.pg-store-output {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 2px;
-}
-
-.pg-store-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background-color: #23282d;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  font-size: 12.5px;
-}
-
-.pg-store-label {
-  color: #979aa1;
-  font-weight: 500;
-}
-
-.pg-store-code {
-  color: #addb67;
-  font-family: monospace;
-  font-size: 12px;
-}
-
-.pg-store-val {
-  color: #ffffff;
-  font-weight: 600;
+  border: 1px solid #40464d;
+  border-radius: 2px;
+  padding: 8px 10px;
+  height: auto;
+  overflow: hidden;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
 }
 
 .pg-preview-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   color: #979aa1;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   letter-spacing: 0.02em;
 }
 
@@ -477,12 +442,12 @@ const activeTab = ref('hooks');
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 10.5px;
+  font-size: 10px;
   color: #3858e9;
   font-weight: 600;
   background-color: rgba(56, 88, 233, 0.12);
-  padding: 2px 7px;
-  border-radius: 999px;
+  padding: 1px 6px;
+  border-radius: 2px;
 }
 
 .pg-status-dot {
@@ -505,41 +470,41 @@ const activeTab = ref('hooks');
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  background-color: #23282d;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  padding: 5px 8px;
+  background-color: #1e1e1e;
+  border: 1px solid #40464d;
+  border-radius: 2px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .pg-deal-info {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .pg-deal-info strong {
-  font-size: 12.5px;
+  font-size: 11.5px;
   color: #ffffff;
   font-weight: 600;
 }
 
 .pg-deal-info span {
-  font-size: 10.5px;
-  color: #979aa1;
+  font-size: 10px;
+  color: #80848d;
 }
 
 .pg-deal-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pg-pill {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 1px 5px;
+  border-radius: 2px;
 }
 
 .pg-pill-open {
@@ -553,7 +518,7 @@ const activeTab = ref('hooks');
 }
 
 .pg-deal-value {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #ffffff;
   font-family: monospace;
@@ -584,23 +549,30 @@ const activeTab = ref('hooks');
 
 .pg-feature-card {
   padding: 24px;
-  border: 1px solid var(--vp-c-gutter);
-  border-radius: 10px;
+  border: 1px solid transparent;
+  border-radius: 2px;
   background-color: var(--vp-c-bg-soft);
   display: flex;
   flex-direction: column;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.pg-feature-card:hover {
+  border-color: #3858e9;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px rgba(56, 88, 233, 0.12);
 }
 
 .pg-feature-icon {
   width: 42px;
   height: 42px;
-  border-radius: 8px;
+  border-radius: 2px;
   background-color: var(--vp-c-bg);
   border: 1px solid var(--vp-c-gutter);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--vp-c-brand-1);
+  color: #3858e9;
   margin-bottom: 18px;
 }
 
@@ -630,15 +602,16 @@ const activeTab = ref('hooks');
 }
 
 .pg-section-title {
-  font-size: 28px;
-  font-weight: 800;
+  font-family: var(--vp-font-family-serif, "EB Garamond", Georgia, serif);
+  font-size: clamp(32px, 4vw, 44px);
+  font-weight: 500;
   color: var(--vp-c-text-1);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   letter-spacing: -0.02em;
 }
 
 .pg-section-desc {
-  font-size: 16px;
+  font-size: 16.5px;
   color: var(--vp-c-text-2);
   line-height: 1.6;
   margin: 0;
@@ -660,16 +633,17 @@ const activeTab = ref('hooks');
   display: flex;
   flex-direction: column;
   padding: 28px;
-  border: 1px solid var(--vp-c-gutter);
-  border-radius: 10px;
+  border: 1px solid transparent;
+  border-radius: 2px;
   background-color: var(--vp-c-bg-soft);
   text-decoration: none !important;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .pg-starter-card:hover {
-  border-color: var(--vp-c-brand-1);
+  border-color: #3858e9;
   transform: translateY(-2px);
+  box-shadow: 6px 6px 0px rgba(56, 88, 233, 0.12);
 }
 
 .pg-starter-top {
@@ -682,13 +656,13 @@ const activeTab = ref('hooks');
 .pg-starter-icon {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: 2px;
   background-color: var(--vp-c-bg);
   border: 1px solid var(--vp-c-gutter);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--vp-c-brand-1);
+  color: #3858e9;
 }
 
 .pg-starter-badge {
@@ -698,7 +672,7 @@ const activeTab = ref('hooks');
   padding: 4px 10px;
   background-color: var(--vp-c-bg);
   border: 1px solid var(--vp-c-gutter);
-  border-radius: 6px;
+  border-radius: 2px;
 }
 
 .pg-starter-title {
@@ -723,46 +697,52 @@ const activeTab = ref('hooks');
   gap: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--vp-c-brand-1);
+  color: #3858e9;
 }
 
-/* --- Call to Action --- */
+/* --- Call to Action (Playground Blueberry Banner Style) --- */
 .pg-cta {
-  padding: 64px 0 24px;
+  padding: 64px 0 0;
 }
 
 .pg-cta-content {
-  background-color: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-gutter);
-  border-radius: 12px;
-  padding: 48px 24px;
+  background-color: #3858e9;
+  border: 1px solid #213fd4;
+  border-radius: 2px;
+  padding: 60px 24px;
   text-align: center;
+  color: #ffffff;
+  box-shadow: 6px 6px 0px rgba(33, 63, 212, 0.25);
 }
 
 .pg-cta-content h2 {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--vp-c-text-1);
-  margin-bottom: 12px;
+  font-family: var(--vp-font-family-serif, "EB Garamond", Georgia, serif);
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 16px;
   letter-spacing: -0.02em;
 }
 
 .pg-cta-content p {
-  font-size: 16px;
-  color: var(--vp-c-text-2);
-  margin-bottom: 24px;
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 28px;
 }
 
 .pg-cta-code {
   display: inline-block;
-  background-color: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-gutter);
-  padding: 12px 20px;
-  border-radius: 8px;
-  margin-bottom: 28px;
+  max-width: 100%;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.pg-cta-code code {
+  color: #ffffff !important;
+  background-color: transparent !important;
   font-family: monospace;
-  font-size: 14px;
-  color: var(--vp-c-text-1);
+  font-size: 15px !important;
+  font-weight: 600 !important;
 }
 
 .pg-cta-actions {
@@ -770,6 +750,30 @@ const activeTab = ref('hooks');
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
+}
+
+.pg-cta-content .pg-btn-primary {
+  background-color: #ffffff !important;
+  color: #3858e9 !important;
+  border: 1px solid #ffffff !important;
+}
+
+.pg-cta-content .pg-btn-primary:hover {
+  background-color: #eff2ff !important;
+  border-color: #eff2ff !important;
+  color: #213fd4 !important;
+}
+
+.pg-cta-content .pg-btn-secondary {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+}
+
+.pg-cta-content .pg-btn-secondary:hover {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #3858e9 !important;
 }
 </style>
 
@@ -788,5 +792,56 @@ const activeTab = ref('hooks');
   border-bottom: none !important;
   margin-top: 0 !important;
   padding-top: 0 !important;
+}
+
+/* Ensure install command text inside CTA is crisp white against charcoal background */
+.vp-doc .pg-cta-code code {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+/* Seamless VitePress Code Component Styling inside CTA Slot */
+.vp-doc .pg-cta-code div[class*='language-'] {
+  background-color: #1e1e1e !important;
+  border: 1px solid #40464d !important;
+  border-radius: 2px !important;
+  margin: 0 !important;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3) !important;
+}
+
+.vp-doc .pg-cta-code div[class*='language-'] pre,
+.vp-doc .pg-cta-code div[class*='language-'] code,
+.vp-doc .pg-cta-code div[class*='language-'] code span,
+.vp-doc .pg-cta-code div[class*='language-'] span:not(.lang) {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.vp-doc .pg-cta-code div[class*='language-'] span.lang {
+  color: rgba(255, 255, 255, 0.65) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.vp-doc .pg-cta-code div[class*='language-'] button.copy {
+  border-radius: 2px !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+.vp-doc .pg-cta-code div[class*='language-'] button.copy:hover {
+  background-color: #383838 !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Eliminate excessive default VitePress home content bottom spacing */
+.VPHome .VPHomeContent {
+  padding-bottom: 32px !important;
+  margin-bottom: 0 !important;
 }
 </style>
