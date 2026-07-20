@@ -9,7 +9,7 @@ The **WordPress Plugin Starter Template** ([`wpui-frappe-plugin-starter`](https:
 ### Architectural Features:
 - **Admin Interface (`@wordpress/boot`)**: Built with `@wordpress/boot` to render a native, full-page WordPress admin application without custom layout shells. It features native sidebar navigation and leverages `@wordpress/dataviews` for lists, grids, and DataForm integration.
 - **Next-Generation Build Tooling (`@wordpress/build`)**: Uses npm workspaces (`packages/` and `routes/`) to automatically compile TypeScript and SCSS. It outputs `build/build.php` and `build/pages.php` for seamless server-side asset loading.
-- **Server-Side REST API Proxy**: Proxies cross-origin API calls to Frappe through a custom WordPress REST API endpoint (`/wp-json/frappe-data-store/v1/proxy`) using `wp_remote_request()`. This prevents browser CORS restrictions when the plugin runs inside the WordPress admin.
+- **Server-Side REST API Proxy**: Proxies cross-origin API calls to Frappe through a custom WordPress REST API endpoint (`/wp-json/wpui-frappe/v1/connection/proxy`) using `wp_remote_request()`. This prevents browser CORS restrictions when the plugin runs inside the WordPress admin.
 - **WordPress Playground Setup**: Run `npm run playground` from the root directory to boot an isolated WordPress Playground instance with the plugin pre-activated, requiring no local database or PHP installation.
 
 ## 2. Standalone App Starter
@@ -73,3 +73,36 @@ To host a live demo of the React app on [Cloudflare Pages](https://pages.cloudfl
 - **"PermissionError" or "Insufficient Permission"**: The request reached Frappe, but the current user cannot read or modify that DocType.
 - **Requests still run as Guest**: Ensure `npm run dev` is running (the session-cookie flow depends on the Vite proxy). If using an API token, confirm that both values belong to the same enabled Frappe user.
 - **The Frappe site URL does not work**: Enter the complete site origin (e.g. `https://frappe.localhost`), including the protocol and any port. Do not include a path.
+
+### Advanced Configuration (Plugin Starter)
+
+#### Production Connection
+
+Keep Frappe credentials out of browser storage or WordPress database by defining them securely in your `wp-config.php`:
+
+```php
+define( 'WPUI_FRAPPE_SITE_URL', 'https://crm.example.com' );
+define( 'WPUI_FRAPPE_API_TOKEN', 'API_KEY:API_SECRET' );
+```
+
+Use a dedicated, least-privilege Frappe user for these tokens. Administrators may alternatively save the origin and API token through the plugin's Connection screen; the values remain server-side and are never returned by the REST API.
+
+#### Local Development Flags
+
+Local or private network origins are rejected by default for security. For local development only, you can opt in to such origins by defining flags in `wp-config.php`:
+
+```php
+define( 'WPUI_FRAPPE_ALLOW_LOCAL', true );
+define( 'WPUI_FRAPPE_ALLOW_INSECURE_TLS', true );
+```
+
+The included local Playground blueprint enables both flags so self-signed origins such as `https://frappe.localhost` work during development. Restart the Playground after changing blueprint constants.
+
+#### Quality and Release
+
+To check and build the plugin for production:
+
+```bash
+npm run check       # TypeScript, PHP syntax, and production build
+npm run plugin-zip  # Create an installable release archive (wpui-frappe.zip)
+```
