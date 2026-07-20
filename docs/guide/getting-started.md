@@ -21,9 +21,11 @@ export const frappeStore = registerFrappeDataStore({
   storeName: 'my-app/frappe',
   baseUrl: import.meta.env.DEV
     ? '/api/frappe-proxy'
-    : (localStorage.getItem('frappe_site_url') || 'https://myfrappe.localhost'),
+    : (sessionStorage.getItem('frappe_site_url') || 'https://myfrappe.localhost'),
   headers: () => {
-    const token = localStorage.getItem('frappe_api_token');
+    // Note: Prefer HttpOnly cookies or server-side proxies for production.
+    // If using API tokens in a standalone app, use volatile storage like sessionStorage.
+    const token = sessionStorage.getItem('frappe_api_token');
     if (token) {
       return { Authorization: `token ${token}` };
     }
